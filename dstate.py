@@ -49,7 +49,7 @@ def parseInputFile(fileIn):
             line_no += 1
             #print(f'LINE:<{line}>')
             if state < 0:
-                if 'SmgBegin' ==  lineStr:
+                if 'SmBegin' ==  lineStr:
                     state = 0
                     registered_in = ""
                     combo_in = ""
@@ -57,28 +57,28 @@ def parseInputFile(fileIn):
                 else:
                     print(line, end='')
             elif state == 0: #REGISTERED
-                if 'SmgCombo' == lineStr:
+                if 'SmCombo' == lineStr:
                     state = 1
-                elif 'SmgForever' == lineStr:
+                elif 'SmForever' == lineStr:
                     line_base = line_no
                     state = 2
                 else:
                     registered_in += line
             elif state == 1: #COMBO
-                if 'SmgForever' == lineStr:
+                if 'SmForever' == lineStr:
                     line_base = line_no
                     state = 2
                 else:
                     combo_in += line
             elif state == 2: #BEHAV_LOOP
-                if 'SmgEnd' == lineStr:
+                if 'SmEnd' == lineStr:
                     state=3
                 else:
-                    m=re.match('(\s*)SmgFlopped:\s*(.*)', line)
+                    m=re.match('(\s*)SmFlopped:\s*(.*)', line)
                     if m:
                         registered_in += m.group(1) + m.group(2) + "\n"
                     else:
-                        m=re.match('(\s*)SmgCombo:\s*(.*)', line)
+                        m=re.match('(\s*)SmCombo:\s*(.*)', line)
                         if m:
                             combo_in += m.group(1) + m.group(2) + "\n"
                         else:
@@ -283,41 +283,41 @@ class FsmConverter:
                          f"if ({self.reset_cond}) disable {self.oname}_loop; end")
 
           if self.ff_decl_in != "":
-             print(ind + "// SmgBegin ff begin")
+             print(ind + "// SmBegin ff begin")
              indpr(ind, self.ff_decl_in)
-             print(ind + "// SmgBegin ff end")
+             print(ind + "// SmBegin ff end")
 
           if self.combo_decl_in != "":
-             print(ind + "// SmgCombo begin")
+             print(ind + "// SmCombo begin")
              indpr(ind, self.combo_decl_in)
-             print(ind + "// SmgCombo end")
+             print(ind + "// SmCombo end")
 
           print(ind + f"always {self.tick} begin : {self.oname}")
           if self.ff_local_decl_in != "":
-             print(ind + tab + "// SmgBegin ff local begin")
+             print(ind + tab + "// SmBegin ff local begin")
              indpr(ind + tab, self.ff_local_decl_in)
-             print(ind + tab + "// SmgBegin ff local end")
+             print(ind + tab + "// SmBegin ff local end")
 
           if self.combo_local_decl_in != "":
-             print (ind + tab + "// SmgCombo local begin")
+             print (ind + tab + "// SmCombo local begin")
              indpr(ind + tab, self.combo_local_decl_in)
-             print (ind + tab + "// SmgCombo local end")
+             print (ind + tab + "// SmCombo local end")
 
           print (ind +   tab + f"if ({self.not_reset_cond}) begin")
           print (ind + 2*tab +  f"begin : {self.oname}_loop")
           print (ind + 3*tab +    "while (1) begin")
-          print (ind + 4*tab +     f"// SmgForever {file_base}:{line_base}")
+          print (ind + 4*tab +     f"// SmForever {file_base}:{line_base}")
           indpr (ind + 4*tab,        beh_in)
-          print (ind + 4*tab +      "// SmgEnd")
+          print (ind + 4*tab +      "// SmEnd")
           print (ind + 4*tab +      "`tick;")
           print (ind + 3*tab +     "end")
           print (ind + 2*tab +    "end")
           print (ind +   tab +  "end")
 
           if self.ff_rst_in != "":
-             print (ind + tab + "// SmgBegin ff init begin")
+             print (ind + tab + "// SmBegin ff init begin")
              indpr (ind + tab, self.ff_rst_in)
-             print (ind + tab + "// SmgBegin ff init end")
+             print (ind + tab + "// SmBegin ff init end")
 
           print (ind + "end")
           if self.args.drop_suffix:
@@ -650,34 +650,34 @@ class FsmConverter:
        if self.args.sep_style == 1:
           # SINGLE BLOCK STYLE
           if self.ff_decl_in != "":
-             print(ind + "// SmgBegin ff decl begin")
+             print(ind + "// SmBegin ff decl begin")
              indpr(ind, self.ff_decl_in)
-             print(ind + "// SmgBegin ff decl end")
+             print(ind + "// SmBegin ff decl end")
 
           if self.combo_decl_in != "":
-             print(ind + "// SmgCombo decl begin")
+             print(ind + "// SmCombo decl begin")
              indpr(ind, self.combo_decl_in)
-             print(ind + "// SmgCombo decl end")
+             print(ind + "// SmCombo decl end")
 
           print(ind + f"always {self.tick} begin : {self.oname}")
 
           if self.ff_local_decl_in != "":
-             print(ind + tab + "// SmgBegin ff local begin")
+             print(ind + tab + "// SmBegin ff local begin")
              indpr(ind + tab, self.ff_local_decl_in)
-             print(ind + tab + "// SmgBegin ff local end")
+             print(ind + tab + "// SmBegin ff local end")
 
           if self.combo_local_decl_in != "":
-             print(ind + tab + "// SmgCombo local begin")
+             print(ind + tab + "// SmCombo local begin")
              indpr(ind + tab, self.combo_local_decl_in)
-             print(ind + tab + "// SmgCombo local end")
+             print(ind + tab + "// SmCombo local end")
 
           print(ind + tab + f"reg [{state_bits_m1}:0] {self.ostate}{curr}, {self.ostate}{nxt};")
 
           print(ind + tab + f"if ({self.reset_cond}) begin")
           if self.ff_rst_in != "":
-             print(ind + 2*tab + "// SmgBegin ff init begin")
+             print(ind + 2*tab + "// SmBegin ff init begin")
              indpr(ind + 2*tab, self.ff_rst_in)
-             print(ind + 2*tab + "// SmgBegin ff init end")
+             print(ind + 2*tab + "// SmBegin ff init end")
 
           print(ind + 2*tab + f"{self.ostate}{curr} <= {sd}{init_state};")
           print(ind + tab +  "end")
@@ -686,7 +686,7 @@ class FsmConverter:
           indpr(ind + 2*tab , self.ff_update_nxt)
           print(ind + 2*tab +f"// set defaults for next state vars end")
           print(ind + 2*tab +f"{self.ostate}{nxt} = {self.ostate}{curr};")
-          print(ind + 2*tab +  "// SmgForever")
+          print(ind + 2*tab +  "// SmForever")
           print(ind + 2*tab + f"case ({self.ostate}{curr})")
 
           for code in sorted(tks.keys()):
@@ -698,7 +698,7 @@ class FsmConverter:
              print(ind+ 3*tab + f"end")
 
           print(ind + 2*tab + "endcase")
-          print(ind + 2*tab + "// SmgEnd")
+          print(ind + 2*tab + "// SmEnd")
           print(ind + 2*tab +f"// Update ffs with next state vars begin")
           indpr(ind + 2*tab , self.ff_update_ffs)
           print(ind + 2*tab +f"// Update ffs with next state vars end")
@@ -714,26 +714,26 @@ class FsmConverter:
           # SEPARATED 2 BLOCK STYLE
           print(ind + f"reg [{state_bits_m1}:0] {self.ostate}{curr}, {self.ostate}{nxt};")
           if self.ff_decl_in != "":
-             print(ind + "// SmgBegin ff decl begin")
+             print(ind + "// SmBegin ff decl begin")
              indpr(ind, self.ff_decl_in)
-             print(ind + "// SmgBegin ff decl end")
+             print(ind + "// SmBegin ff decl end")
 
           if self.combo_decl_in != "":
-             print(ind + "// SmgCombo decl begin")
+             print(ind + "// SmCombo decl begin")
              indpr(ind, self.combo_decl_in)
-             print(ind + "// SmgCombo decl end")
+             print(ind + "// SmCombo decl end")
 
           print(ind +f"always @(*) begin : {self.oname}_combo_blk")
 
           if self.ff_local_decl_in != "":
-             print(ind + tab + "// SmgBegin ff local begin")
+             print(ind + tab + "// SmBegin ff local begin")
              indpr(ind, self.ff_local_decl_in)
-             print(ind + tab + "// SmgBegin ff local end")
+             print(ind + tab + "// SmBegin ff local end")
 
           if self.combo_local_decl_in != "":
-             print(ind + tab + "// SmgCombo local begin")
+             print(ind + tab + "// SmCombo local begin")
              indpr(ind, self.combo_local_decl_in)
-             print(ind + tab + "// SmgCombo local end")
+             print(ind + tab + "// SmCombo local end")
 
           print(ind+ tab + "// defaults for {nxt} variables")
           for var in sorted(self.reg_track_isff.keys()):
@@ -741,12 +741,12 @@ class FsmConverter:
                 print(ind + tab + f"{var}{nxt} = {var}{curr};")
 
           if self.combo_init_in != "":
-             print(ind + tab + "// SmgCombo init begin")
+             print(ind + tab + "// SmCombo init begin")
              indpr(ind + tab , self.combo_init_in)
-             print(ind + tab + "// SmgCombo init end")
+             print(ind + tab + "// SmCombo init end")
 
           print(ind + tab + f"{self.ostate}{nxt} = {self.ostate}{curr};")
-          print(ind + tab +  "// SmgForever")
+          print(ind + tab +  "// SmForever")
           print(ind + tab + f"case ({self.ostate}{curr})")
 
           for code in sorted(tks.keys()):
@@ -757,15 +757,15 @@ class FsmConverter:
              print(ind + 2*tab + "end")
 
           print(ind + tab + "endcase")
-          print(ind + tab + "// SmgEnd")
+          print(ind + tab + "// SmEnd")
           print(ind + "end")
           print("")
           print(ind +f"always {self.tick} begin : {self.oname}_ff_blk")
           print(ind + tab + f"if ({self.reset_cond}) begin")
           if self.ff_rst_in != "":
-             print(ind + 2*tab + "// SmgBegin ff init begin")
+             print(ind + 2*tab + "// SmBegin ff init begin")
              indpr(ind + 2*tab, self.ff_rst_in)
-             print(ind + 2*tab + "// SmgBegin ff init end")
+             print(ind + 2*tab + "// SmBegin ff init end")
 
           print(ind + 2*tab + f"{self.ostate}{curr} <= {sd}{init_state};")
           print(ind + tab + "end")
@@ -1016,13 +1016,13 @@ if __name__=="__main__":
     args = mainCmdParser()
     state = parseInputFile(args.file)
     if state == -2:
-       warning("SmgBegin section not found")
+       warning("SmBegin section not found")
        sys.exit(0)
     elif state == 0:
-        error("SmgCombo section not found")
+        error("SmCombo section not found")
     elif state == 1:
-        error("SmgForever section not found")
+        error("SmForever section not found")
     elif state == 2:
-        error("SmgEnd not found")
+        error("SmEnd not found")
     sys.exit(0)
 

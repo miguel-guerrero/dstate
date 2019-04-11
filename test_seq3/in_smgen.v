@@ -21,7 +21,7 @@ module matmul
     input rst_n
 );
 
-SmgBegin
+SmBegin
     reg mem_write <= 0;
     reg mem_req <= 0;
     reg [MEM_AW-1:0] mem_addr <= 0;
@@ -29,7 +29,7 @@ SmgBegin
     reg [DIM_BITS-1:0] i <= 0;
     reg [DIM_BITS-1:0] j <= 0;
     reg ret <= 0;
-SmgForever
+SmForever
     i_ = 0;
     ret_ = 0;
 
@@ -50,7 +50,7 @@ SmgForever
         `incr(i_, 1);
     end
     ret_ = 1;
-SmgEnd
+SmEnd
 
 
 task MEM_write;

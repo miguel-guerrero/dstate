@@ -5,10 +5,10 @@ module motor(
     output motor_up, motor_dn
 );
 
-SmgBegin
+SmBegin
    reg motor_up = 0;
    reg motor_dn = 0;
-SmgForever
+SmForever
    if (up_limit) begin
       `wait1(activate);
       motor_dn = 1;
@@ -21,7 +21,7 @@ SmgForever
       `wait1(up_limit);
       motor_up = 0;
    end
-SmgEnd
+SmEnd
 
 // hello
 

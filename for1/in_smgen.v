@@ -19,12 +19,12 @@ module tpg
    input rst_n
 );
 
-SmgBegin
+SmBegin
    reg hs = 1'b0, vs = 1'b0, vld = 1'b0, y_active = 1'b0;
    reg [PW-1:0] cnt = 8'b0;
    reg [H_BITS-1:0] x = 0;
    reg [V_BITS-1:0] y = 0;
-SmgForever
+SmForever
     cnt=0;
     for (y=0; y != 5; y=y+1) begin
         for (x = 0; x != 10; x=x+1'b1) begin
@@ -33,7 +33,7 @@ SmgForever
         end 
         `tick;
     end 
-SmgEnd
+SmEnd
 
 assign rgb={cnt_q, cnt_q, cnt_q};
 

@@ -24,13 +24,13 @@ module matmul
 
 wire sm_ena0 = sm_ena;
 
-SmgBegin
+SmBegin
    local reg [DIM_BITS-1:0] i=0, j=0, k=0;
    local reg [MEM_AW-1:0] a_i0=0, a_ik=0, b_0j=0, b_kj=0, c_i0=0, c_ij=0;
    reg ret=0, mem_write=0, mem_req=0, row_end=0;
    reg [MEM_AW-1:0] mem_addr=0;
    reg [MEM_DW-1:0] mem_wdata=0;
-SmgForever
+SmForever
     ret = 0;
 
     `wait1(go);
@@ -69,14 +69,14 @@ SmgForever
     end
     ret = 1;
     `tick;
-SmgEnd
+SmEnd
 
 wire sm_ena1 = sm_ena;
-SmgBegin
+SmBegin
    local reg [PREC-1:0] a=0, b=0;
    reg [MEM_DW-1:0] acc=0;
    reg acc_rdy=0;
-SmgForever
+SmForever
     acc=0;
     acc_rdy=0;
     do begin
@@ -87,7 +87,7 @@ SmgForever
         acc = acc + a[PREC-1:0]*b[PREC-1:0];
     end while (~row_end);
     acc_rdy=1;
-SmgEnd
+SmEnd
 
 
 task MEM_write;
