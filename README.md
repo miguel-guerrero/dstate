@@ -1,12 +1,11 @@
-# dstate
-
-Derived State Machines from sequential code for Verilog HDL 
 
 # INTRODUCTION
 
- This tool generates a verilog FSM based on a behavioral 
- description in verilog of the functionality. The input is plain text file 
- with several sections.
+**dstate** Derived State Machines from sequential code for Verilog HDL
+
+This tool generates a verilog FSM based on a behavioral 
+description in verilog of the functionality. The input is plain text file 
+with several sections.
  
     sm_decl :=
        'SmBegin'
@@ -136,13 +135,10 @@ The output of the tool is generated on stdout
 The output is FSM style by default. To produce behavioral code with a 
 wrapper use -beh option.
 
-
 # BUGS
 
  This code is in Beta testing. Please report any bugs along with input file 
- and command line used to allow its reproduction to: 
-
-    miguel.a.guerrero@gmail.com
+ and command line used to allow its reproduction to: miguel.a.guerrero@gmail.com
  
  Suggestions for improvement are most welcomed
 
@@ -150,10 +146,13 @@ wrapper use -beh option.
 
 The tests use:
 
-iverilog   - verilog simulator    (sudo apt-get install iverilog)
-vppreproc  - verilog preprocessor (sudo apt-get install libverilog-perl)
-gtkwave    - waveform viewer      (sudo apt-get install gtkwave)
-yosys      - logic synthesis      (http://www.clifford.at/yosys) 
+- **iverilog** : verilog simulator    (sudo apt-get install iverilog)
+- **vppreproc** : verilog preprocessor (sudo apt-get install libverilog-perl)
+
+Optional:
+
+- **gtkwave** : waveform viewer      (sudo apt-get install gtkwave)
+- **yosys** : logic synthesis      (http://www.clifford.at/yosys) 
              required only if running GLS over generated code 
 
 # LICENSING
