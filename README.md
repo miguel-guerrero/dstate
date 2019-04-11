@@ -1,9 +1,9 @@
 
 # INTRODUCTION
 
-**dstate** Derived State Machines from sequential code for Verilog HDL
+**dstate** : Derived State Machines from sequential code for Verilog HDL
 
-This tool generates a verilog FSM based on a behavioral 
+This tool generates a verilog FSM based on a behavioral / sequential
 description in verilog of the functionality. The input is plain text file 
 with several sections.
  
@@ -15,6 +15,10 @@ with several sections.
        'SmForever'
        ...
        'SmEnd'
+
+Anything not present within SmBegin/SmEnd markers is copied verbatim to the
+output, which allows interleaving these blocks anywhere in the middle of 
+user code.
 
 EBNF notation:
  
@@ -48,7 +52,7 @@ that can be used on the main functional loop. The syntax for each entry is
 The init_value is used to define the reset value in flops generated under
 flop declaration block
 
-Section SmgCombo is used to add 'reg' type of variable definitions that 
+Section SmCombo is used to add 'reg' type of variable definitions that 
 can be used on the main functional loop for 2-block style FSMs. 
 The syntax for each entry is:
 
@@ -61,7 +65,7 @@ defined under SmCombo.
  
 SmForever/SmEnd define the functionality of the block. This block of 
 code is the body of a loop that would repeat forever. This code can be 
-written in sequential / behavioral style, smgen will unwrap the sequential 
+written in sequential / behavioral style, dstate will unwrap the sequential 
 (non-synthesizable) code into FSM  style RTL that implements the same 
 functionality but is now synthesizable.
  
@@ -82,15 +86,15 @@ to initial testing / debugging.
  
     $ make
  
- Will generate 2 files:
+ Will generate the following files:
  
- out_beh.v : behavioral code in in.v with wrapper logic. Note how an infinite 
-             loop with a clock in between iterations has been inserted along 
-             with logic to react to reset. This code is simulable by any 
-             verilog simulator but not synthesizable.
- 
- out_sm1.v : FSM style generated code. Equivalent to out_beh.v but is also 
-             synthesizable (1 block type)
+-  out_beh.v : behavioral code in in.v with wrapper logic. Note how an infinite 
+               loop with a clock in between iterations has been inserted along 
+               with logic to react to reset. This code is simulable by any 
+               verilog simulator but not synthesizable.
+
+ - out_sm.v : FSM style generated code. Equivalent to out_beh.v but is also 
+              synthesizable (1 block type)
  
  Note that a clock event (wait for clock edge) is represented by the 
 
@@ -108,7 +112,58 @@ Please modifie SIM varible in examples/Makefile to invoke your own simulator.
 
 # CONTROL
 
- The script contains options to define reset as
+For a description of all the options do: 
+    
+    $ ./dstate.py --help
+    
+    usage: dstate.py [-h] [-prefix PREFIX] [-clk CLK] [-state STATE] [-rst RST]
+                     [-dbg DBG] [-name NAME] [-tab TAB] [-sd SD]
+                     [-next_suffix NEXT_SUFFIX] [-curr_suffix CURR_SUFFIX]
+                     [-ena ENA] [-local_next [LOCAL_NEXT]]
+                     [-falling_edge [FALLING_EDGE]] [-sync_rst [SYNC_RST]]
+                     [-high_act_rst [HIGH_ACT_RST]] [-behav [BEHAV]]
+                     [-rename_states [RENAME_STATES]] [-drop_suffix [DROP_SUFFIX]]
+                     file
+
+    positional arguments:
+      file                  Input file to process
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -prefix PREFIX        Prefix for state names
+      -clk CLK              Clock name
+      -state STATE          Name of state variable generated
+      -rst RST              Reset name
+      -dbg DBG              Debug Level
+      -name NAME            Used to derive block name etc.
+      -tab TAB              Used to indent
+      -sd SD                delay for <= assignements
+      -next_suffix NEXT_SUFFIX
+                            suffix for next state variables
+      -curr_suffix CURR_SUFFIX
+                            suffix for next state variables
+      -ena ENA              fms enable signal base (fsm # will be appended)
+      -local_next [LOCAL_NEXT]
+                            Keep next declarations local
+      -falling_edge [FALLING_EDGE]
+                            Clock active on falling edge
+      -sync_rst [SYNC_RST]  Syncrhonous reset
+      -high_act_rst [HIGH_ACT_RST]
+                            reset active high
+      -behav [BEHAV]        Output is behavioral
+      -rename_states [RENAME_STATES]
+                            Rename/simplify merged output states
+      -drop_suffix [DROP_SUFFIX]
+                            Rename ffs to be have no suffix outside dstate
+                        
+The output of the tool is generated on stdout
+
+All options can be abbreviated until unique.
+
+The output is FSM style by default. To produce behavioral code with a 
+wrapper use -beh option.
+
+The script contains options to define reset as
 
     synchronous / active high   -> -sync -high
     synchronous / active low    -> -sync 
@@ -125,15 +180,6 @@ Other options are available to control the name of the following items:
     FSM state variable : -state s
     generated block name seed : -name s
     prefix for state constants : -prefix s
-
-For a description of all the options do: 
-
-    $ dstate.py -help
-
-The output of the tool is generated on stdout
-
-The output is FSM style by default. To produce behavioral code with a 
-wrapper use -beh option.
 
 # BUGS
 
