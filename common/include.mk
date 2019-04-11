@@ -25,17 +25,17 @@ guild: beh_post.log
 %.vpost_behav: %.v
 	$(PREPRO) -DBEHAV $< > $@
 
-out_sm.v : in_smgen$(TC).vpost $(TOFSM)
+out_sm.v : in$(TC).vpost $(TOFSM)
 	@echo -----------------------------------------------------------
-	@echo     compiling in_smgen$(TC).vpost into a state machine out_sm.v
+	@echo     compiling in$(TC).vpost into a state machine out_sm.v
 	@echo -----------------------------------------------------------
-	$(TOFSM) $(TOFSMOPTS) in_smgen$(TC).vpost > out_sm.v
+	$(TOFSM) $(TOFSMOPTS) in$(TC).vpost > out_sm.v
 
-out_beh.v : in_smgen$(TC).vpost_behav $(TOFSM)
+out_beh.v : in$(TC).vpost_behav $(TOFSM)
 	@echo -----------------------------------------------------------
-	@echo     compiling in_smgen$(TC).vpost_behav into behavioral out_beh.v
+	@echo     compiling in$(TC).vpost_behav into behavioral out_beh.v
 	@echo -----------------------------------------------------------
-	$(TOFSM) $(TOFSMOPTS) in_smgen$(TC).vpost_behav -behav > out_beh.v
+	$(TOFSM) $(TOFSMOPTS) in$(TC).vpost_behav -behav > out_beh.v
 
 beh.log : out_beh.v tb.v
 	@echo -----------------------------------------------------------
