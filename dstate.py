@@ -234,7 +234,7 @@ class FsmConverter:
 
           #--- state machine (RTL) output
           if self.args.dbg > 0:
-             with open('smgen.dbg', 'w') as f:
+             with open('dstate.dbg', 'w') as f:
                  print("-- before source --", file=f)
                  print(f"{inp}", file=f)
              parser.st_show_from_node(f"{self.sm_num}_00_before", root)
@@ -274,7 +274,7 @@ class FsmConverter:
               ena = self.args.ena + str(self.sm_num)
           #--- Behavioral output
           print()
-          print (f"// begin SmGen{self.sm_num}")
+          print (f"// begin dstate{self.sm_num}")
           if ena == "":
              print(ind + f"`define tick begin update_ffs{self.sm_num}; {self.tick}; "+
                          f"if ({self.reset_cond}) disable {self.oname}_loop; end")
@@ -326,7 +326,7 @@ class FsmConverter:
               print(ind + "// drop_suffix end")
           self.print_task_update_ffs(ind)
           print (ind + "`undef tick")
-          print (f"// end SmGen{self.sm_num}\n")
+          print (f"// end dstate{self.sm_num}\n")
 
     #--------------------------------------------------------------------
     # tree modification related routines
@@ -644,7 +644,7 @@ class FsmConverter:
        init_state = self.state_name(init_state)
 
        print()
-       print (f"// begin SmGen{self.sm_num}")
+       print (f"// begin dstate{self.sm_num}")
        indpr(ind, par_out)
 
        if self.args.sep_style == 1:
@@ -789,7 +789,7 @@ class FsmConverter:
              print(non_reset_ffs)
              print(ind + "end")
 
-       print (f"// end SmGen{self.sm_num}\n")
+       print (f"// end dstate{self.sm_num}\n")
 
     def print_task_update_ffs(self, ind):
         tab = self.args.tab
@@ -989,7 +989,7 @@ def mainCmdParser():
     cmdParser.add_argument("-state",   type=str, default="state", help=f"Name of state variable generated")
     cmdParser.add_argument("-rst",     type=str, default="rst_n", help=f"Reset name")
     cmdParser.add_argument("-dbg",     type=int, default=0, help=f"Debug Level")
-    cmdParser.add_argument("-name",    type=str, default="smgen", help=f"Used to derive block name etc.")
+    cmdParser.add_argument("-name",    type=str, default="dstate", help=f"Used to derive block name etc.")
     cmdParser.add_argument("-tab",     type=str, default="\t", help=f"Used to indent")
     cmdParser.add_argument("-sd",      type=str, default=None, help=f"delay for <= assignements")
     cmdParser.add_argument("-next_suffix", type=str, default="", help=f"suffix for next state variables")
@@ -1003,7 +1003,7 @@ def mainCmdParser():
     cmdParser.add_argument("-high_act_rst", type=bool, default=False, const=True, nargs='?', help=f"reset active high")
     cmdParser.add_argument("-behav",        type=bool, default=False, const=True, nargs='?', help=f"Output is behavioral")
     cmdParser.add_argument("-rename_states",type=bool, default=False, const=True, nargs='?', help=f"Rename/simplify merged output states")
-    cmdParser.add_argument("-drop_suffix",  type=bool, default=False, const=True, nargs='?', help=f"Rename ffs to be have no suffix outside smgen")
+    cmdParser.add_argument("-drop_suffix",  type=bool, default=False, const=True, nargs='?', help=f"Rename ffs to be have no suffix outside dstate")
 
     args = cmdParser.parse_args()
     args.sd = "#" + args.sd + " " if args.sd else ""

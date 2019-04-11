@@ -108,14 +108,14 @@ end
 always @(posedge clk) begin
    #0;
 `ifdef GLS
-   $display($time, " i=", i_dut.\smgen0.i_r , 
-                   " j=", i_dut.\smgen0.j_r , 
-                   " k=", i_dut.\smgen0.k_r , 
+   $display($time, " i=", i_dut.\dstate0.i_r , 
+                   " j=", i_dut.\dstate0.j_r , 
+                   " k=", i_dut.\dstate0.k_r , 
                    " acc=%x", i_dut.acc);
 `else
-   $display($time, " i=", i_dut.smgen0.i_r, 
-                   " j=", i_dut.smgen0.j_r, 
-                   " k=", i_dut.smgen0.k_r, 
+   $display($time, " i=", i_dut.dstate0.i_r, 
+                   " j=", i_dut.dstate0.j_r, 
+                   " k=", i_dut.dstate0.k_r, 
                    " acc=%x", i_dut.acc);
 `endif
 end

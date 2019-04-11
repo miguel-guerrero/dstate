@@ -87,21 +87,21 @@ task MEM_write;
     input [MEM_AW-1:0] addr;
     input [MEM_DW-1:0] wdata;
     begin
-        {smgen0.mem_wdata, smgen0.mem_addr, smgen0.mem_write} = {wdata, addr, 1'b1};
-        smgen0.mem_req = 1'b1;
+        {dstate0.mem_wdata, dstate0.mem_addr, dstate0.mem_write} = {wdata, addr, 1'b1};
+        dstate0.mem_req = 1'b1;
     end
 endtask
 
 task MEM_read;
     input [MEM_AW-1:0] addr;
     begin
-        {smgen0.mem_addr, smgen0.mem_write} = {addr, 1'b0};
-        smgen0.mem_req = 1'b1;
+        {dstate0.mem_addr, dstate0.mem_write} = {addr, 1'b0};
+        dstate0.mem_req = 1'b1;
     end
 endtask
 
 task MEM_done;
-    smgen0.mem_req = 1'b0;
+    dstate0.mem_req = 1'b0;
 endtask
 
 endmodule
