@@ -184,7 +184,7 @@ Other options are available to control the name of the following items:
 # BUGS
 
  This code is in Beta testing. Please report any bugs along with input file 
- and command line used to allow its reproduction to: miguel.a.guerrero@gmail.com
+ and command line used to allow its reproduction to: miguel.a.guerrero at gmail.com
  
  Suggestions for improvement are most welcomed
 
