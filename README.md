@@ -60,7 +60,7 @@ conventional tools, whereas the behavioral one is more readable and amenable to 
 
 # AN EXAMPLE
 
-The following example gives an quick overview of the mode of operation. It implements a simple automatic door controller that drives two signals (_motor_up/motor_dn_) once the door is activated throgh the input _activate_. If the door is up (up_limit is active) and the door is activated, the controller will drive the door down until the sensor for down position is active (_motor_dn_). Similarty if we estart on the down position the activation will drive the door till it reaches the up position.
+The following example gives an quick overview of the mode of operation. It implements a simple automatic door controller that drives two signals (_motor_up/motor_dn_) once the door is activated throgh the input _activate_. If the door is up (up_limit is active) and the door is activated, the controller will drive the door down until the sensor for down position is active (_motor_dn_). Similarty if we estart on the down position the activation will drive the door till it reaches the up position. The example is based on the following [lecture notes](https://www.academia.edu/21043868/Logic_Design_Verilog_FSM_in_class_design_example_s_1_Verilog_FSM_Design_Example_Automatic_Garage_Door_Opener_and_Timers)
 
       1 `define wait1(cond) `tick; while(~(cond)) `tick
       2 
@@ -187,7 +187,10 @@ The example prouces the following output once processed:
      92 endmodule
 
  Few notes:
-- The input is more compact and close to the original intent.
+- The input is more compact and close to the original intent (the factors bellow are typical)
+    - dstate: 26 lines
+    - manualy written FSM (see lecture notes link): 5 states, 73 lines (condensed HDL style)
+    - dstate generated code: 5 states, 92 lines (with comments, uncondensed style)
 - The chunk SmBegin/SmEnd block has been replaced by a new implementation that is now synthesizable (the style is not the conventional 1 or 2 block FSM, more of a mix but still synthesizable)
 - The input uses blocking assignements exclusively. This is by design to simplify the process as sequential thinking is simpler and less error prone than mixing things that happen in the current cycle vs. scheduled for the next. The tool takes care of inserting non blocking assignements only for final state values.
 - Multiple SmBegin/SmEnd can be present in a single file. They will be internally labeled with suffixes 0, 1, .. (e.g. state0/state1...)
