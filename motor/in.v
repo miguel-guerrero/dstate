@@ -23,6 +23,4 @@ SmForever
    end
 SmEnd
 
-// hello
-
 endmodule

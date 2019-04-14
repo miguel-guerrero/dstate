@@ -983,27 +983,45 @@ def mainCmdParser():
     from  argparse import ArgumentParser
 
     cmdParser = ArgumentParser()
-    cmdParser.add_argument("file",     type=str, default="/dev/stdin", help=f"Input file to process")
-    cmdParser.add_argument("-prefix",  type=str, default="SM", help=f"Prefix for state names")
-    cmdParser.add_argument("-clk",     type=str, default="clk", help=f"Clock name")
-    cmdParser.add_argument("-state",   type=str, default="state", help=f"Name of state variable generated")
-    cmdParser.add_argument("-rst",     type=str, default="rst_n", help=f"Reset name")
-    cmdParser.add_argument("-dbg",     type=int, default=0, help=f"Debug Level")
-    cmdParser.add_argument("-name",    type=str, default="dstate", help=f"Used to derive block name etc.")
-    cmdParser.add_argument("-tab",     type=str, default="\t", help=f"Used to indent")
-    cmdParser.add_argument("-sd",      type=str, default=None, help=f"delay for <= assignements")
-    cmdParser.add_argument("-next_suffix", type=str, default="", help=f"suffix for next state variables")
-    cmdParser.add_argument("-curr_suffix", type=str, default="_r", help=f"suffix for next state variables")
-    cmdParser.add_argument("-ena", type=str, default="", help=f"fms enable signal base (fsm # will be appended)")
+    cmdParser.add_argument("file",     type=str, default="/dev/stdin",
+                           help=f"Input file to process")
+    cmdParser.add_argument("-prefix",  type=str, default="SM",
+                           help=f"Prefix for state names")
+    cmdParser.add_argument("-clk",     type=str, default="clk",
+                           help=f"Clock name")
+    cmdParser.add_argument("-state",   type=str, default="state",
+                           help=f"Name of state variable generated")
+    cmdParser.add_argument("-rst",     type=str, default="rst_n",
+                           help=f"Reset name")
+    cmdParser.add_argument("-dbg",     type=int, default=0,
+                           help=f"Debug Level")
+    cmdParser.add_argument("-name",    type=str, default="dstate",
+                           help=f"Used to derive block name etc.")
+    cmdParser.add_argument("-tab",     type=str, default="\t",
+                           help=f"Used to indent")
+    cmdParser.add_argument("-sd",      type=str, default=None,
+                           help=f"delay for <= assignements")
+    cmdParser.add_argument("-next_suffix", type=str, default="",
+                           help=f"suffix for next state variables")
+    cmdParser.add_argument("-curr_suffix", type=str, default="_r",
+                           help=f"suffix for next state variables")
+    cmdParser.add_argument("-ena", type=str, default="",
+                           help=f"FSM enable signal base (FSM number will be appended)")
 
-    #cmdParser.add_argument('--verbose',    "-v", default=False, action='store_true')
-    cmdParser.add_argument("-local_next",   type=bool, default=False, const=True, nargs='?', help=f"Keep next declarations local")
-    cmdParser.add_argument("-falling_edge", type=bool, default=False, const=True, nargs='?', help=f"Clock active on falling edge")
-    cmdParser.add_argument("-sync_rst",     type=bool, default=False, const=True, nargs='?', help=f"Syncrhonous reset")
-    cmdParser.add_argument("-high_act_rst", type=bool, default=False, const=True, nargs='?', help=f"reset active high")
-    cmdParser.add_argument("-behav",        type=bool, default=False, const=True, nargs='?', help=f"Output is behavioral")
-    cmdParser.add_argument("-rename_states",type=bool, default=False, const=True, nargs='?', help=f"Rename/simplify merged output states")
-    cmdParser.add_argument("-drop_suffix",  type=bool, default=False, const=True, nargs='?', help=f"Rename ffs to be have no suffix outside dstate")
+    cmdParser.add_argument("-local_next",    default=False, action='store_true',
+                           help=f"Keep next declarations local")
+    cmdParser.add_argument("-falling_edge",  default=False, action='store_true',
+                           help=f"Clock active on falling edge")
+    cmdParser.add_argument("-sync_rst",      default=False, action='store_true',
+                           help=f"Syncrhonous reset")
+    cmdParser.add_argument("-high_act_rst",  default=False, action='store_true',
+                           help=f"reset active high")
+    cmdParser.add_argument("-behav",         default=False, action='store_true',
+                           help=f"Output is behavioral")
+    cmdParser.add_argument("-rename_states", default=False, action='store_true',
+                           help=f"Rename/simplify merged output states")
+    cmdParser.add_argument("-drop_suffix",   default=False, action='store_true',
+                           help=f"Rename ffs to be have no suffix outside dstate")
 
     args = cmdParser.parse_args()
     args.sd = "#" + args.sd + " " if args.sd else ""
