@@ -98,93 +98,94 @@ The example prouces the following output once processed:
       3     output motor_up, motor_dn
       4 );
       5 
-      6 // begin dstate0
-      7 localparam SM0_0 = 0;
-      8 localparam SM0_1 = 1;
-      9 localparam SM0_2 = 2;
-     10 localparam SM0_3 = 3;
-     11 localparam SM0_4 = 4;
-     12 // SmBegin ff decl begin
-     13 reg  motor_up_q;
-     14 reg  motor_dn_q;
-     15 // SmBegin ff decl end
-     16 always @(posedge clk or negedge rst_n) begin : dstate0
-     17     // SmBegin ff local begin
-     18     reg  motor_up;
-     19     reg  motor_dn;
-     20     // SmBegin ff local end
-     21     reg [2:0] state0_q, state0;
-     22     if (~rst_n) begin
-     23         // SmBegin ff init begin
-     24         motor_up_q <= #1 0;
-     25         motor_dn_q <= #1 0;
-     26         // SmBegin ff init end
-     27         state0_q <= #1 SM0_0;
-     28     end
-     29     else begin
-     30         // set defaults for next state vars begin
-     31         motor_up = motor_up_q;
-     32         motor_dn = motor_dn_q;
-     33         // set defaults for next state vars end
-     34         state0 = state0_q;
-     35         // SmForever
-     36         case (state0_q)
-     37             SM0_0: begin
-     38                 if (up_limit) begin
-     39                     state0 = SM0_1;
-     40                 end
-     41                 else begin
-     42                     state0 = SM0_3;
-     43                 end
-     44             end
-     45             SM0_1: begin
-     46                 if (~(activate)) begin
-     47                     // stay
-     48                 end
-     49                 else begin
-     50                     motor_dn = 1;
-     51                     state0 = SM0_2;
-     52                 end
-     53             end
-     54             SM0_2: begin
-     55                 if (~(dn_limit)) begin
-     56                     // stay
-     57                 end
-     58                 else begin
-     59                     motor_dn = 0;
-     60                     state0 = SM0_0;
-     61                 end
-     62             end
-     63             SM0_3: begin
-     64                 if (~(activate)) begin
-     65                     // stay
-     66                 end
-     67                 else begin
-     68                     motor_up = 1;
-     69                     state0 = SM0_4;
-     70                 end
-     71             end
-     72             SM0_4: begin
-     73                 if (~(up_limit)) begin
-     74                     // stay
-     75                 end
-     76                 else begin
-     77                     motor_up = 0;
-     78                     state0 = SM0_0;
-     79                 end
-     80             end
-     81         endcase
-     82         // SmEnd
-     83         // Update ffs with next state vars begin
-     84         motor_up_q <= #1 motor_up;
-     85         motor_dn_q <= #1 motor_dn;
-     86         // Update ffs with next state vars end
-     87         state0_q <= #1 state0;
-     88     end
-     89 end
-     90 // end dstate0
-     91 
-     92 endmodule
+	  6 // begin dstate0
+	  7 localparam SM0_0 = 0;
+	  8 localparam SM0_1 = 1;
+	  9 localparam SM0_2 = 2;
+	 10 localparam SM0_3 = 3;
+	 11 localparam SM0_4 = 4;
+	 12 always @(posedge clk or negedge rst_n) begin : dstate0
+	 13     // SmBegin ff local begin
+	 14     reg  motor_up_q, motor_up;
+	 15     reg  motor_dn_q, motor_dn;
+	 16     // SmBegin ff local end
+	 17     reg [2:0] state0_q, state0;
+	 18     if (~rst_n) begin
+	 19         // SmBegin ff init begin
+	 20         motor_up_q <= 0;
+	 21         motor_dn_q <= 0;
+	 22         // SmBegin ff init end
+	 23         state0_q <= SM0_0;
+	 24     end
+	 25     else begin
+	 26         // set defaults for next state vars begin
+	 27         motor_up = motor_up_q;
+	 28         motor_dn = motor_dn_q;
+	 29         // set defaults for next state vars end
+	 30         state0 = state0_q;
+	 31         // SmForever
+	 32         case (state0_q)
+	 33             SM0_0: begin
+	 34                 if (up_limit) begin
+	 35                     state0 = SM0_1;
+	 36                 end
+	 37                 else begin
+	 38                     state0 = SM0_3;
+	 39                 end
+	 40             end
+	 41             SM0_1: begin
+	 42                 if (~(activate)) begin
+	 43                     // stay
+	 44                 end
+	 45                 else begin
+	 46                     motor_dn = 1;
+	 47                     state0 = SM0_2;
+	 48                 end
+	 49             end
+	 50             SM0_2: begin
+	 51                 if (~(dn_limit)) begin
+	 52                     // stay
+	 53                 end
+	 54                 else begin
+	 55                     motor_dn = 0;
+	 56                     state0 = SM0_0;
+	 57                 end
+	 58             end
+	 59             SM0_3: begin
+	 60                 if (~(activate)) begin
+	 61                     // stay
+	 62                 end
+	 63                 else begin
+	 64                     motor_up = 1;
+	 65                     state0 = SM0_4;
+	 66                 end
+	 67             end
+	 68             SM0_4: begin
+	 69                 if (~(up_limit)) begin
+	 70                     // stay
+	 71                 end
+	 72                 else begin
+	 73                     motor_up = 0;
+	 74                     state0 = SM0_0;
+	 75                 end
+	 76             end
+	 77         endcase
+	 78         // SmEnd
+	 79         // Update ffs with next state vars begin
+	 80         motor_up_q <= motor_up;
+	 81         motor_dn_q <= motor_dn;
+	 82         // Update ffs with next state vars end
+	 83         state0_q <= state0;
+	 84     end
+	 85 end
+	 86 // drop_suffix begin
+	 87 wire  motor_up = dstate0.motor_up_q;
+	 88 wire  motor_dn = dstate0.motor_dn_q;
+	 89 // drop_suffix end
+	 90 // end dstate0
+	 91 
+	 92 endmodule
+
 
  Few notes:
 - The input is more compact and close to the original intent (the factors bellow are typical)
