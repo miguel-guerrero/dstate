@@ -47,7 +47,6 @@ def parseInputFile(fileIn):
         while line:
             lineStr = line.strip()
             line_no += 1
-            #print(f'LINE:<{line}>')
             if state < 0:
                 if 'SmBegin' ==  lineStr:
                     state = 0
@@ -647,147 +646,67 @@ class FsmConverter:
        print (f"// begin dstate{self.sm_num}")
        indpr(ind, par_out)
 
-       if self.args.sep_style == 1:
-          # SINGLE BLOCK STYLE
-          if self.ff_decl_in != "":
-             print(ind + "// SmBegin ff decl begin")
-             indpr(ind, self.ff_decl_in)
-             print(ind + "// SmBegin ff decl end")
-
-          if self.combo_decl_in != "":
-             print(ind + "// SmCombo decl begin")
-             indpr(ind, self.combo_decl_in)
-             print(ind + "// SmCombo decl end")
-
-          print(ind + f"always {self.tick} begin : {self.oname}")
-
-          if self.ff_local_decl_in != "":
-             print(ind + tab + "// SmBegin ff local begin")
-             indpr(ind + tab, self.ff_local_decl_in)
-             print(ind + tab + "// SmBegin ff local end")
-
-          if self.combo_local_decl_in != "":
-             print(ind + tab + "// SmCombo local begin")
-             indpr(ind + tab, self.combo_local_decl_in)
-             print(ind + tab + "// SmCombo local end")
-
-          print(ind + tab + f"reg [{state_bits_m1}:0] {self.ostate}{curr}, {self.ostate}{nxt};")
-
-          print(ind + tab + f"if ({self.reset_cond}) begin")
-          if self.ff_rst_in != "":
-             print(ind + 2*tab + "// SmBegin ff init begin")
-             indpr(ind + 2*tab, self.ff_rst_in)
-             print(ind + 2*tab + "// SmBegin ff init end")
-
-          print(ind + 2*tab + f"{self.ostate}{curr} <= {sd}{init_state};")
-          print(ind + tab +  "end")
-          print(ind + tab + f"else {ena_guard}begin")
-          print(ind + 2*tab +f"// set defaults for next state vars begin")
-          indpr(ind + 2*tab , self.ff_update_nxt)
-          print(ind + 2*tab +f"// set defaults for next state vars end")
-          print(ind + 2*tab +f"{self.ostate}{nxt} = {self.ostate}{curr};")
-          print(ind + 2*tab +  "// SmForever")
-          print(ind + 2*tab + f"case ({self.ostate}{curr})")
-
-          for code in sorted(tks.keys()):
-             visited = set()
-             node = tks[code]
-             st_name = self.state_name(node)
-             print(ind+ 3*tab + f"{st_name}: begin")
-             print(self.dump_subtree_sm(node.succ(), ind + 4*tab, mode, node, visited), end='')
-             print(ind+ 3*tab + f"end")
-
-          print(ind + 2*tab + "endcase")
-          print(ind + 2*tab + "// SmEnd")
-          print(ind + 2*tab +f"// Update ffs with next state vars begin")
-          indpr(ind + 2*tab , self.ff_update_ffs)
-          print(ind + 2*tab +f"// Update ffs with next state vars end")
-          print(ind + 2*tab +f"{self.ostate}{curr} <= {sd}{self.ostate}{nxt};")
-          print(ind + tab+ "end")
-          print(ind + "end")
-          if self.args.drop_suffix:
-              print(ind + "// drop_suffix begin")
-              indpr(ind, self.ff_rename_ffs)
-              print(ind + "// drop_suffix end")
-
-       else:
-          # SEPARATED 2 BLOCK STYLE
-          print(ind + f"reg [{state_bits_m1}:0] {self.ostate}{curr}, {self.ostate}{nxt};")
-          if self.ff_decl_in != "":
-             print(ind + "// SmBegin ff decl begin")
-             indpr(ind, self.ff_decl_in)
-             print(ind + "// SmBegin ff decl end")
-
-          if self.combo_decl_in != "":
-             print(ind + "// SmCombo decl begin")
-             indpr(ind, self.combo_decl_in)
-             print(ind + "// SmCombo decl end")
-
-          print(ind +f"always @(*) begin : {self.oname}_combo_blk")
-
-          if self.ff_local_decl_in != "":
-             print(ind + tab + "// SmBegin ff local begin")
-             indpr(ind, self.ff_local_decl_in)
-             print(ind + tab + "// SmBegin ff local end")
-
-          if self.combo_local_decl_in != "":
-             print(ind + tab + "// SmCombo local begin")
-             indpr(ind, self.combo_local_decl_in)
-             print(ind + tab + "// SmCombo local end")
-
-          print(ind+ tab + "// defaults for {nxt} variables")
-          for var in sorted(self.reg_track_isff.keys()):
-             if self.reg_track_isff[var]:
-                print(ind + tab + f"{var}{nxt} = {var}{curr};")
-
-          if self.combo_init_in != "":
-             print(ind + tab + "// SmCombo init begin")
-             indpr(ind + tab , self.combo_init_in)
-             print(ind + tab + "// SmCombo init end")
-
-          print(ind + tab + f"{self.ostate}{nxt} = {self.ostate}{curr};")
-          print(ind + tab +  "// SmForever")
-          print(ind + tab + f"case ({self.ostate}{curr})")
-
-          for code in sorted(tks.keys()):
-             node = tks[code]
-             st_name = self.state_name(node)
-             print(ind + 2*tab + f"{st_name}: begin")
-             print(self.dump_subtree_sm(node.succ(), ind + 3*tab, mode, node), end='')
-             print(ind + 2*tab + "end")
-
-          print(ind + tab + "endcase")
-          print(ind + tab + "// SmEnd")
-          print(ind + "end")
-          print("")
-          print(ind +f"always {self.tick} begin : {self.oname}_ff_blk")
-          print(ind + tab + f"if ({self.reset_cond}) begin")
-          if self.ff_rst_in != "":
-             print(ind + 2*tab + "// SmBegin ff init begin")
-             indpr(ind + 2*tab, self.ff_rst_in)
-             print(ind + 2*tab + "// SmBegin ff init end")
-
-          print(ind + 2*tab + f"{self.ostate}{curr} <= {sd}{init_state};")
-          print(ind + tab + "end")
-          print(ind + tab +f"else {ena_guard}begin")
-          print(ind + 2*tab + "// flopping")
-          non_reset_ffs = ""
-          for var in sorted(self.reg_track_isff.keys()):
-             if self.reg_track_isff[var]:
-                if self.reg_track_init[var] != "":
-                   print(ind + 2*tab + f"{var}{curr} <= {sd}{var}{nxt};")
-                else:
-                   non_reset_ffs += ind + 2*tab + f"{var}{curr} <= {sd}{var}{nxt};"
-
-          print(ind + 2*tab + f"{self.ostate}{curr} <= {sd}{self.ostate}{nxt};")
-          print(ind + tab + "end")
-          print(ind + "end")
-
-          if non_reset_ffs != "":
-             print("")
-             print(ind +f"always {self.tick_no_rst} begin : {self.oname}_ff_no_rst_blk")
-             print(non_reset_ffs)
-             print(ind + "end")
+       # SINGLE BLOCK STYLE
+       if self.ff_decl_in != "":
+          print(ind + "// SmBegin ff decl begin")
+          indpr(ind, self.ff_decl_in)
+          print(ind + "// SmBegin ff decl end")
+ 
+       if self.combo_decl_in != "":
+          print(ind + "// SmCombo decl begin")
+          indpr(ind, self.combo_decl_in)
+          print(ind + "// SmCombo decl end")
+ 
+       print(ind + f"always {self.tick} begin : {self.oname}")
+ 
+       if self.ff_local_decl_in != "":
+          print(ind + tab + "// SmBegin ff local begin")
+          indpr(ind + tab, self.ff_local_decl_in)
+          print(ind + tab + "// SmBegin ff local end")
+ 
+       if self.combo_local_decl_in != "":
+          print(ind + tab + "// SmCombo local begin")
+          indpr(ind + tab, self.combo_local_decl_in)
+          print(ind + tab + "// SmCombo local end")
+ 
+       print(ind + tab + f"reg [{state_bits_m1}:0] {self.ostate}{curr}, {self.ostate}{nxt};")
+ 
+       print(ind + tab + f"if ({self.reset_cond}) begin")
+       if self.ff_rst_in != "":
+          print(ind + 2*tab + "// SmBegin ff init begin")
+          indpr(ind + 2*tab, self.ff_rst_in)
+          print(ind + 2*tab + "// SmBegin ff init end")
+ 
+       print(ind + 2*tab + f"{self.ostate}{curr} <= {sd}{init_state};")
+       print(ind + tab +  "end")
+       print(ind + tab + f"else {ena_guard}begin")
+       print(ind + 2*tab +f"// set defaults for next state vars begin")
+       indpr(ind + 2*tab , self.ff_update_nxt)
+       print(ind + 2*tab +f"// set defaults for next state vars end")
+       print(ind + 2*tab +f"{self.ostate}{nxt} = {self.ostate}{curr};")
+       print(ind + 2*tab +  "// SmForever")
+       print(ind + 2*tab + f"case ({self.ostate}{curr})")
+ 
+       for code in sorted(tks.keys()):
+          visited = set()
+          node = tks[code]
+          st_name = self.state_name(node)
+          print(ind+ 3*tab + f"{st_name}: begin")
+          print(self.dump_subtree_sm(node.succ(), ind + 4*tab, mode, node, visited), end='')
+          print(ind+ 3*tab + f"end")
+ 
+       print(ind + 2*tab + "endcase")
+       print(ind + 2*tab + "// SmEnd")
+       print(ind + 2*tab +f"// Update ffs with next state vars begin")
+       indpr(ind + 2*tab , self.ff_update_ffs)
+       print(ind + 2*tab +f"// Update ffs with next state vars end")
+       print(ind + 2*tab +f"{self.ostate}{curr} <= {sd}{self.ostate}{nxt};")
+       print(ind + tab+ "end")
+       print(ind + "end")
+       if self.args.drop_suffix:
+           print(ind + "// drop_suffix begin")
+           indpr(ind, self.ff_rename_ffs)
+           print(ind + "// drop_suffix end")
 
        print (f"// end dstate{self.sm_num}\n")
 
@@ -800,11 +719,7 @@ class FsmConverter:
         print(ind + "endtask")
 
     def assign(self, lhs, rhs):
-       if self.args.sep_style == 1:
-          return f"{lhs} <= {self.args.sd}{rhs}"
-       nxt = self.args.next_suffix
-       lhs = lhs.rstrip()
-       return f"{lhs}{nxt} = {rhs}"
+       return f"{lhs} <= {self.args.sd}{rhs}"
 
     def dump_subtree_sm(self, node, ind, mode, state_node, visited_in):
 
@@ -881,7 +796,7 @@ class FsmConverter:
              node=nx
           elif node.typ == "sn":
              flagged_visited(node)
-             out_code = self.change_assign(node.code) if self.args.sep_style==2 else node.code
+             out_code = node.code
              out += ind + f"{out_code};\n"
              node=node.succ()
           elif node.typ == "cm":
@@ -1025,7 +940,6 @@ def mainCmdParser():
 
     args = cmdParser.parse_args()
     args.sd = "#" + args.sd + " " if args.sd else ""
-    args.sep_style = 1
     if args.next_suffix == args.curr_suffix:
         error(f'-next_suffix option cannot match -curr_suffix one: {args.curr_suffix}')
     return args
