@@ -62,6 +62,7 @@ conventional tools, whereas the behavioral one is more readable and amenable to 
 
 The following example gives an quick overview of the mode of operation. It implements a simple automatic door controller that drives two signals (_motor_up/motor_dn_) once the door is activated throgh the input _activate_. If the door is up (up_limit is active) and the door is activated, the controller will drive the door down until the sensor for down position is active (_motor_dn_). Similarty if we estart on the down position the activation will drive the door till it reaches the up position. The example is based on the following [lecture notes](https://www.academia.edu/21043868/Logic_Design_Verilog_FSM_in_class_design_example_s_1_Verilog_FSM_Design_Example_Automatic_Garage_Door_Opener_and_Timers)
 
+```systemverilog
       1 `define wait1(cond) `tick; while(~(cond)) `tick
       2 
       3 module motor(
@@ -88,104 +89,106 @@ The following example gives an quick overview of the mode of operation. It imple
      24 SmEnd
      25 
      26 endmodule
+```
 
 In the code above the macro **\`wait1(cond)** is defined to wait until a condition is true inserting at least 1 clock cycle of wait. Similarly the examples provided often define a **\`wait0(cond)** where the the wait is for 0 or more cycles.
 
-The example prouces the following output once processed:
+The example produces the following output once processed:
 
-      1 module motor(
-      2     input clk, activate, up_limit, dn_limit, rst_n,
-      3     output motor_up, motor_dn
-      4 );
-      5 
-	  6 // begin dstate0
-	  7 localparam SM0_0 = 0;
-	  8 localparam SM0_1 = 1;
-	  9 localparam SM0_2 = 2;
-	 10 localparam SM0_3 = 3;
-	 11 localparam SM0_4 = 4;
-	 12 always @(posedge clk or negedge rst_n) begin : dstate0
-	 13     // SmBegin ff local begin
-	 14     reg  motor_up_q, motor_up;
-	 15     reg  motor_dn_q, motor_dn;
-	 16     // SmBegin ff local end
-	 17     reg [2:0] state0_q, state0;
-	 18     if (~rst_n) begin
-	 19         // SmBegin ff init begin
-	 20         motor_up_q <= 0;
-	 21         motor_dn_q <= 0;
-	 22         // SmBegin ff init end
-	 23         state0_q <= SM0_0;
-	 24     end
-	 25     else begin
-	 26         // set defaults for next state vars begin
-	 27         motor_up = motor_up_q;
-	 28         motor_dn = motor_dn_q;
-	 29         // set defaults for next state vars end
-	 30         state0 = state0_q;
-	 31         // SmForever
-	 32         case (state0_q)
-	 33             SM0_0: begin
-	 34                 if (up_limit) begin
-	 35                     state0 = SM0_1;
-	 36                 end
-	 37                 else begin
-	 38                     state0 = SM0_3;
-	 39                 end
-	 40             end
-	 41             SM0_1: begin
-	 42                 if (~(activate)) begin
-	 43                     // stay
-	 44                 end
-	 45                 else begin
-	 46                     motor_dn = 1;
-	 47                     state0 = SM0_2;
-	 48                 end
-	 49             end
-	 50             SM0_2: begin
-	 51                 if (~(dn_limit)) begin
-	 52                     // stay
-	 53                 end
-	 54                 else begin
-	 55                     motor_dn = 0;
-	 56                     state0 = SM0_0;
-	 57                 end
-	 58             end
-	 59             SM0_3: begin
-	 60                 if (~(activate)) begin
-	 61                     // stay
-	 62                 end
-	 63                 else begin
-	 64                     motor_up = 1;
-	 65                     state0 = SM0_4;
-	 66                 end
-	 67             end
-	 68             SM0_4: begin
-	 69                 if (~(up_limit)) begin
-	 70                     // stay
-	 71                 end
-	 72                 else begin
-	 73                     motor_up = 0;
-	 74                     state0 = SM0_0;
-	 75                 end
-	 76             end
-	 77         endcase
-	 78         // SmEnd
-	 79         // Update ffs with next state vars begin
-	 80         motor_up_q <= motor_up;
-	 81         motor_dn_q <= motor_dn;
-	 82         // Update ffs with next state vars end
-	 83         state0_q <= state0;
-	 84     end
-	 85 end
-	 86 // drop_suffix begin
-	 87 wire  motor_up = dstate0.motor_up_q;
-	 88 wire  motor_dn = dstate0.motor_dn_q;
-	 89 // drop_suffix end
-	 90 // end dstate0
-	 91 
-	 92 endmodule
-
+```systemverilog
+     1 module motor(
+     2     input clk, activate, up_limit, dn_limit, rst_n,
+     3     output motor_up, motor_dn
+     4 );
+     5 
+     6 // begin dstate0
+     7 localparam SM0_0 = 0;
+     8 localparam SM0_1 = 1;
+     9 localparam SM0_2 = 2;
+    10 localparam SM0_3 = 3;
+    11 localparam SM0_4 = 4;
+    12 always @(posedge clk or negedge rst_n) begin : dstate0
+    13     // SmBegin ff local begin
+    14     reg  motor_up_q, motor_up;
+    15     reg  motor_dn_q, motor_dn;
+    16     // SmBegin ff local end
+    17     reg [2:0] state0_q, state0;
+    18     if (~rst_n) begin
+    19         // SmBegin ff init begin
+    20         motor_up_q <= 0;
+    21         motor_dn_q <= 0;
+    22         // SmBegin ff init end
+    23         state0_q <= SM0_0;
+    24     end
+    25     else begin
+    26         // set defaults for next state vars begin
+    27         motor_up = motor_up_q;
+    28         motor_dn = motor_dn_q;
+    29         // set defaults for next state vars end
+    30         state0 = state0_q;
+    31         // SmForever
+    32         case (state0_q)
+    33             SM0_0: begin
+    34                 if (up_limit) begin
+    35                     state0 = SM0_1;
+    36                 end
+    37                 else begin
+    38                     state0 = SM0_3;
+    39                 end
+    40             end
+    41             SM0_1: begin
+    42                 if (~(activate)) begin
+    43                     // stay
+    44                 end
+    45                 else begin
+    46                     motor_dn = 1;
+    47                     state0 = SM0_2;
+    48                 end
+    49             end
+    50             SM0_2: begin
+    51                 if (~(dn_limit)) begin
+    52                     // stay
+    53                 end
+    54                 else begin
+    55                     motor_dn = 0;
+    56                     state0 = SM0_0;
+    57                 end
+    58             end
+    59             SM0_3: begin
+    60                 if (~(activate)) begin
+    61                     // stay
+    62                 end
+    63                 else begin
+    64                     motor_up = 1;
+    65                     state0 = SM0_4;
+    66                 end
+    67             end
+    68             SM0_4: begin
+    69                 if (~(up_limit)) begin
+    70                     // stay
+    71                 end
+    72                 else begin
+    73                     motor_up = 0;
+    74                     state0 = SM0_0;
+    75                 end
+    76             end
+    77         endcase
+    78         // SmEnd
+    79         // Update ffs with next state vars begin
+    80         motor_up_q <= motor_up;
+    81         motor_dn_q <= motor_dn;
+    82         // Update ffs with next state vars end
+    83         state0_q <= state0;
+    84     end
+    85 end
+    86 // drop_suffix begin
+    87 wire  motor_up = dstate0.motor_up_q;
+    88 wire  motor_dn = dstate0.motor_dn_q;
+    89 // drop_suffix end
+    90 // end dstate0
+    91 
+    92 endmodule
+```
 
  Few notes:
 - The input is more compact and close to the original intent (the factors bellow are typical)
