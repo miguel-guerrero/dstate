@@ -283,9 +283,9 @@ wrapper use -behav option.
 
 The script contains options to define reset as
 
-    synchronous / active high   -> -sync_rst -high
+    synchronous / active high   -> -sync_rst -high_act_rst
     synchronous / active low    -> -sync_rst 
-    asynchronous / active high  -> -high
+    asynchronous / active high  -> -high_act_rst
     asynchronous / active low   -> (default)
  
 The name of the reset signal can be specified using -rst <name> option
