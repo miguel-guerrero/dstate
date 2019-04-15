@@ -231,46 +231,48 @@ For mode details look into one of the mattrix multiply exmples provided (matmul*
 For a description of all the options do: 
     
     $ ./dstate.py --help
-    
-    usage: dstate.py [-h] [-prefix PREFIX] [-clk CLK] [-state STATE] [-rst RST]
-                     [-dbg DBG] [-name NAME] [-tab TAB] [-sd SD]
-                     [-next_suffix NEXT_SUFFIX] [-curr_suffix CURR_SUFFIX]
-                     [-ena ENA] [-local_next [LOCAL_NEXT]]
-                     [-falling_edge [FALLING_EDGE]] [-sync_rst [SYNC_RST]]
-                     [-high_act_rst [HIGH_ACT_RST]] [-behav [BEHAV]]
-                     [-rename_states [RENAME_STATES]] [-drop_suffix [DROP_SUFFIX]]
-                     file
+
+    usage: dstate.py [-h] [-behav] [-next_suffix NEXT_SUFFIX]
+                 [-curr_suffix CURR_SUFFIX] [-drop_suffix] [-ena ENA]
+                 [-local_next] [-rename_states] [-prefix PREFIX] [-clk CLK]
+                 [-state STATE] [-rst RST] [-name NAME] [-tab TAB] [-sd SD]
+                 [-falling_edge] [-sync_rst] [-high_act_rst] [-dbg DBG]
+                 file
 
     positional arguments:
-      file                  Input file to process
+      file                  Input file to process (default, stdin)
 
     optional arguments:
       -h, --help            show this help message and exit
-      -prefix PREFIX        Prefix for state names
-      -clk CLK              Clock name
-      -state STATE          Name of state variable generated
-      -rst RST              Reset name
-      -dbg DBG              Debug Level
-      -name NAME            Used to derive block name etc.
-      -tab TAB              Used to indent
-      -sd SD                delay for <= assignements
+      -behav                Output is behavioral (default, synthesizable RTL)
       -next_suffix NEXT_SUFFIX
-                            suffix for next state variables
+                            Suffix for next state variables (default, no suffix)
       -curr_suffix CURR_SUFFIX
-                            suffix for next state variables
-      -ena ENA              fms enable signal base (fsm # will be appended)
-      -local_next [LOCAL_NEXT]
-                            Keep next declarations local
-      -falling_edge [FALLING_EDGE]
-                            Clock active on falling edge
-      -sync_rst [SYNC_RST]  Syncrhonous reset
-      -high_act_rst [HIGH_ACT_RST]
-                            reset active high
-      -behav [BEHAV]        Output is behavioral
-      -rename_states [RENAME_STATES]
-                            Rename/simplify merged output states
-      -drop_suffix [DROP_SUFFIX]
-                            Rename ffs to be have no suffix outside dstate
+                            Suffix for next state variables (default, '_r')
+      -drop_suffix          Rename FFs to be have no suffix (see -curr_suffix)
+                            outside generated block (default, false)
+      -ena ENA              SM enable signal base (default, no enable generated,
+                            SM number will be appended)
+      -local_next           Keep declarations of next state variables local
+                            (default, false)
+      -rename_states        Rename/simplify merged state constant names (default,
+                            false)
+      -prefix PREFIX        Prefix for state value constants (default, 'SM'
+                            followed by SM instance number)
+      -clk CLK              Clock name (default, 'clk')
+      -state STATE          Name of state variable generated (default, 'state'
+                            followed by SM instance number)
+      -rst RST              Reset name (default, 'rst_n' if active low, 'rst' if
+                            active high)
+      -name NAME            Used to derive block name etc. (default, 'dstate'
+                            followed by SM instance number)
+      -tab TAB              Used to indent output (default, uses tabs)
+      -sd SD                Delay for <= assignements (default, no delay)
+      -falling_edge         Clock active on falling edge (default, rising)
+      -sync_rst             Synchronous reset (default, async)
+      -high_act_rst         Reset active high (default, active low)
+      -dbg DBG              Debug Level (default, 0)
+    
                         
 The output of the tool is generated on **stdout**
 
@@ -281,8 +283,8 @@ wrapper use -behav option.
 
 The script contains options to define reset as
 
-    synchronous / active high   -> -sync -high
-    synchronous / active low    -> -sync 
+    synchronous / active high   -> -sync_rst -high
+    synchronous / active low    -> -sync_rst 
     asynchronous / active high  -> -high
     asynchronous / active low   -> (default)
  
