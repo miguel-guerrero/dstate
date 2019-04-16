@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #------------------------------------------------------------------------------
 # Copyright (c) 2018-Present, Miguel A. Guerrero
 # All rights reserved.
@@ -897,7 +897,7 @@ def indpr(indent, txt):
 def mainCmdParser():
     from  argparse import ArgumentParser
 
-    cmdParser = ArgumentParser()
+    cmdParser = ArgumentParser(epilog='Example: ./dstate.py in.v > out.v\n\n')
     cmdParser.add_argument("file", type=str, default="/dev/stdin",
         help="Input file to process (default, stdin)")
 
