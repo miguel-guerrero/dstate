@@ -1,4 +1,4 @@
-// useful macro definitions
+// Useful macro definitions
 `define wait1(cond) `tick; while(~(cond)) `tick 
 `define incr(x, amnt=1'b1)  x = x + amnt
 `define loop(var, val='b0)  var = val; do begin
@@ -55,13 +55,13 @@ SmForever
                 /// dot product loop
                 `tick; `MEM_read(a_ik); `incr(a_ik);
                 `tick; `MEM_read(b_kj); `incr(b_kj, bSTRIDE); 
-            `next(k, bCOLS);
+            `next(k, aCOLS);
             `MEM_done;
             row_end=1;
             `wait1(acc_rdy);
             `MEM_write(c_ij, acc); `incr(b_0j); `incr(c_ij); row_end=0;
             `tick;
-        `next(j, aCOLS);
+        `next(j, bCOLS);
         `MEM_done;
         `incr(c_i0, cSTRIDE);
         `incr(a_i0, aSTRIDE);
