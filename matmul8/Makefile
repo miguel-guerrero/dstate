@@ -1,2 +1,2 @@
-TOFSMOPTS=-drop -local_next -sd 1 -ena sm_ena -dbg 2 
+TOFSMOPTS=-drop -local_next -dbg 2 -rename
 include ../common/include.mk

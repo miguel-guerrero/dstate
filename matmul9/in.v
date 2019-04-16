@@ -1,9 +1,14 @@
+// useful macro definitions
+
 `define wait1(cond) `tick; while(~(cond)) `tick 
 `define wait0(cond)        while(~(cond)) `tick 
 `define incr(x, amnt=1'b1)  x = x + amnt
 `define loop(var, val='b0)  var = val; do begin
 `define next(var, limit, inc=1'b1) var = var + inc; end while(var != limit)
 
+//----------------------------------------------------------------------------
+// memory to memory matrix multiplication
+//----------------------------------------------------------------------------
 module matmul 
 #(parameter MEM_AW=16, MEM_DW=32, DIM_BITS=16, PREC=16)
 (
@@ -24,6 +29,7 @@ module matmul
     input rst_n
 );
 
+// exercising 'sm_ena' as a way to enable or stall the whole process
 wire sm_ena0 = sm_ena;
 
 SmBegin
@@ -82,6 +88,8 @@ SmForever
     acc_rdy=1;
 SmEnd
 
+
+// To abstract memory read/write operations
 
 task MEM_write;
     input [MEM_AW-1:0] addr;

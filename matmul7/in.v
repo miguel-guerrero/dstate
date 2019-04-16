@@ -1,7 +1,11 @@
+// useful macro definitions
+
 `define wait1(cond) `tick; while(~(cond)) `tick 
-`define wait0(cond)        while(~(cond)) `tick 
 `define incr(x) x=x+1'b1
 
+//----------------------------------------------------------------------------
+// memory to memory matrix multiplication
+//----------------------------------------------------------------------------
 module matmul 
 #(parameter MEM_AW=16, MEM_DW=32, DIM_BITS=16, PREC=16)
 (
@@ -89,6 +93,8 @@ SmForever
     acc_rdy=1;
 SmEnd
 
+
+// To abstract memory read/write operations
 
 task MEM_write;
     input [MEM_AW-1:0] addr;

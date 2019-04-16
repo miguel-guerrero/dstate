@@ -1,13 +1,17 @@
+// useful macro definitions
 `define wait1(cond) `tick; while(~(cond)) `tick 
-`define wait0(cond)        while(~(cond)) `tick 
 `define incr(x, amnt=1'b1)  x = x + amnt
 `define loop(var, val='b0)  var = val; do begin
 `define next(var, limit, inc=1'b1) var = var + inc; end while(var != limit)
 
+// To abstract memory read/write operations
 `define MEM_write(addr, wdata)   {mem_wdata, mem_addr, mem_write, mem_req} = {wdata, addr, 1'b1, 1'b1}
 `define MEM_read(addr)           {mem_addr, mem_write, mem_req} = {addr, 1'b0, 1'b1}
 `define MEM_done                  mem_req = 1'b0
 
+//----------------------------------------------------------------------------
+// memory to memory matrix multiplication
+//----------------------------------------------------------------------------
 module matmul 
 #(parameter MEM_AW=16, MEM_DW=32, DIM_BITS=16, PREC=16)
 (
@@ -23,13 +27,11 @@ module matmul
 
     output ret,
     input go,
-    input sm_ena,
     input clk,
     input rst_n
 );
 
-wire sm_ena0 = sm_ena;
-
+// Control/address generation block
 SmBegin
    local reg [DIM_BITS-1:0] i=0, j=0, k=0;
    local reg [MEM_AW-1:0] a_i0=0, a_ik=0, b_0j=0, b_kj=0, c_i0=0, c_ij=0;
@@ -68,7 +70,7 @@ SmForever
     ret = 1;
 SmEnd
 
-wire sm_ena1 = sm_ena;
+// dot product block
 SmBegin
    local reg [PREC-1:0] a=0, b=0;
    reg [MEM_DW-1:0] acc=0;
