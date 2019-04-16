@@ -1,10 +1,15 @@
+
+// Simple video test pattern generator example
+// t* inputs are timings for sync in clock cycles
+// pixel data is just a set of grayscale ramps
+
 module tpg 
 #(parameter PW=8, H_BITS=12, V_BITS=12)
 (
-   output hs_q,
-   output vs_q,
-   output [3*PW-1:0] rgb,
-   output vld_q,
+   output hs_q,           // horizontal sync
+   output vs_q,           // vertical sync
+   output [3*PW-1:0] rgb, // data output
+   output vld_q,          // valid data
    input [H_BITS-1:0] tHS_START,
    input [H_BITS-1:0] tHS_END,
    input [H_BITS-1:0] tHACT_START,
@@ -27,6 +32,8 @@ SmBegin
 SmForever
     y = 0;
     do begin
+
+        // Per line loop
         x = 0;
         do begin
 
@@ -47,6 +54,7 @@ SmForever
             `tick;
         end while (x != tH_END);
 
+        // generate vertical sync as a function of line#
         if (y == tVS_START)
             vs = 1;
         else if (y == tVS_END)
