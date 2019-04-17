@@ -10,13 +10,10 @@ a[aROWS][aCOLS] * b[aCOLS][bCOLS] = c[aROWS][bCOLS]
 where bROWS is implicily equal to aCOLS
 
 ```C
-    for (i=0; i<aROWS; i++) 
-    {
-        for (j=0; j<bCOLS; j++) 
-        {
+    for (i=0; i<aROWS; i++) {
+        for (j=0; j<bCOLS; j++) {
             acc = 0;
-            for (k=0; k<aCOLS; k++)
-            {
+            for (k=0; k<aCOLS; k++) {
                 acc += a[i][k] * b[k][j];
             }
             c[i][j] = acc;
