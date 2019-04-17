@@ -102,4 +102,4 @@ or putting it in a different way:
 ```
 
 At this point the algorithm can be written to HW adding operand precission
-and clock boundaries with `clock.
+and clock boundaries with **`clock**. Look at in.v for the detailed implementation.
