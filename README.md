@@ -199,7 +199,7 @@ The example produces the following output once processed:
 - The input uses blocking assignements exclusively. This is by design to simplify the process as sequential thinking is simpler and less error prone than mixing things that happen in the current cycle vs. scheduled for the next. The tool takes care of inserting non blocking assignements only for final state values.
 - Multiple SmBegin/SmEnd can be present in a single file. They will be internally labeled with suffixes 0, 1, .. (e.g. state0/state1...)
 
-For mode details look into one of the mattrix multiply exmples provided (matmul*)
+For mode details look into **examples** directory, for example matmul_simple.
 
 # GETTING STARTED
 
