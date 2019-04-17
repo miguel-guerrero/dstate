@@ -44,8 +44,8 @@ SmForever
     i = 0;
     `tick;
     while (i != aROWS) begin
-        c_ij = c_i0;
         b_0j = bBASE;
+        c_ij = c_i0;
         j = 0;
         `tick;
         while (j != bCOLS) begin
@@ -64,8 +64,8 @@ SmForever
             `tick; `MEM_write(c_ij, acc); `incr(b_0j); `incr(c_ij); `incr(j);
             `tick; `MEM_done;
         end
-        c_i0 = c_i0 + cSTRIDE;
         a_i0 = a_i0 + aSTRIDE;
+        c_i0 = c_i0 + cSTRIDE;
         `incr(i);
         `tick;
     end
