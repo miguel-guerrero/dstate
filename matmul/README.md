@@ -19,8 +19,17 @@ where bROWS is implicily equal to aCOLS
             {
                 acc += a[i][k] * b[k][j];
             }
-            c]i][j] = acc;
+            c[i][j] = acc;
         }
     }
 ```
+
+Each of the mattrices is defined by 4 parameters:
+
+BASE, ROWS, COLS, STRIDE
+
+Where BASE is the address of element 0, 0, ROWS and COLS
+the dimensions and STRIDE >= COLS, provides the spacing
+between the first element of 2 consecutive rows (i.e.
+we allow for padding at the end of a row if desired)
 

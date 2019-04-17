@@ -73,7 +73,7 @@ initial begin
    bCOLS = 5;
    aSTRIDE = 4; //8;
    bSTRIDE = 5; //8; 
-   cSTRIDE = 5; //8;
+   cSTRIDE = 8; //5;
    rst_n = 0;
    #99;
    rst_n = 1;
