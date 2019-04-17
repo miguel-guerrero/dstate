@@ -1,6 +1,7 @@
 .ONESHELL:
 
-DIRS=matmul_simple matmul_fast test_seq2 tpg2b tpg2c tpg2d for1 for2 for3 for4 motor 
+DIRS=examples/matmul_simple examples/matmul_fast examples/motor examples/tpg \
+     tests/test_seq2 tests/tpg2 tests/tpg3 tests/for1 tests/for2 tests/for3 tests/for4
 
 all:
 	for i in $(DIRS); do make -C $$i all || exit 1; done

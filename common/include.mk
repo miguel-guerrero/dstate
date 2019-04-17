@@ -3,7 +3,7 @@ PREPRO=vppreproc -noline -noblank
 COMP=iverilog 
 SIM=vvp
 CURR=$(shell pwd)
-TOFSM=../dstate.py
+TOFSM=../../dstate.py
 TOFSMOPTS?=-rename_states -sd 1 
 TC?=
 
