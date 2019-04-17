@@ -59,6 +59,32 @@ reg [MEM_DW:0]             bank[0:MEM_DEPTH-1];
         mem_rdata_vld <= #1 raw_mem_rdata_vld;
     end
 
+    function [MEM_DW-1:0] fast_read;
+        input  [MEM_AW-1:0] addr;
+        begin
+            if (addr >= MEM_DEPTH) begin
+                $display($time, " ERROR: %m accesing address boyond limit %x", addr);
+                fast_read = 'bx;
+            end
+            else begin
+                fast_read = bank[addr];
+            end
+        end
+    endfunction
+
+    task fast_write;
+        input  [MEM_AW-1:0] addr;
+        input  [MEM_DW-1:0] data;
+        begin
+            if (addr >= MEM_DEPTH) begin
+                $display($time, " ERROR: %m accesing address boyond limit %x", addr);
+            end
+            else begin
+                bank[addr] = data;
+            end
+        end
+    endtask
+
     task init_random;
         reg [3:0] n;
         integer i;

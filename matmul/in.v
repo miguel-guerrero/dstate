@@ -56,6 +56,7 @@ SmForever
                 `tick; `MEM_read(a_ik); `incr(a_ik);
                 `tick; `MEM_read(b_kj); `incr(b_kj, bSTRIDE); 
             `next(k, aCOLS);
+            `tick;
             `MEM_done;
             row_end=1;
             `wait1(acc_rdy);
@@ -85,6 +86,7 @@ SmForever
         b = mem_rdata;
         `incr(acc, a[PREC-1:0]*b[PREC-1:0]);
     end while (~row_end);
+    `tick;
     acc_rdy=1;
 SmEnd
 

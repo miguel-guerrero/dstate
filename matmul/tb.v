@@ -71,9 +71,9 @@ initial begin
    aROWS = 6;
    aCOLS = 4;
    bCOLS = 5;
-   aSTRIDE = 8;
-   bSTRIDE = 8; 
-   cSTRIDE = 8;
+   aSTRIDE = 4; //8;
+   bSTRIDE = 5; //8; 
+   cSTRIDE = 5; //8;
    rst_n = 0;
    #99;
    rst_n = 1;
@@ -97,13 +97,65 @@ initial begin
    @(posedge clk);
    $display($time, " got ret");
    #100;
-   $display("A"); i_mem.dump(aBASE, aROWS*aSTRIDE);
-   $display("B"); i_mem.dump(bBASE, aCOLS*bSTRIDE);
-   $display("C"); i_mem.dump(cBASE, aROWS*cSTRIDE);
+
+   // cut-n-paste output in matlab for debug
+   $write("A="); 
+   dump_mat(aBASE, aROWS, aCOLS, aSTRIDE);
+   $write("B="); 
+   dump_mat(bBASE, aCOLS, bCOLS, bSTRIDE);
+   $write("C=");
+   dump_mat(cBASE, aROWS, bCOLS, cSTRIDE);
+   $display("Cg=A*B");
+   $display("all(all(Cg==C))");
+
+   begin: check
+      integer i, j, k;
+      reg [PREC-1:0] a;
+      reg [PREC-1:0] b;
+      reg [MEM_DW-1:0] acc, c;
+      integer error_cnt;
+      error_cnt=0;
+      for (i=0; i<aROWS; i=i+1) begin
+         for (j=0; j<bCOLS; j=j+1) begin
+             acc = 0;
+             for (k=0; k<aCOLS; k=k+1) begin
+                a = i_mem.fast_read(aBASE + i*aSTRIDE+k);
+                b = i_mem.fast_read(bBASE + k*bSTRIDE+j);
+                acc = acc + a*b;
+             end
+             c = i_mem.fast_read(cBASE + i*cSTRIDE+j);
+             if (acc != c) begin
+                 $display("C[%d, %d]=gold(%d) dut(%d)", i, j, acc, c);
+                 error_cnt = error_cnt + 1;
+             end
+         end
+      end
+      $display($time, " ERRORS =%d", error_cnt);
+   end
+
    $display($time, " ending");
    $finish;
 end
 
+task dump_mat;
+   input [MEM_AW-1:0] BASE; 
+   input [DIM_BITS-1:0] ROWS;
+   input [DIM_BITS-1:0] COLS;
+   input [DIM_BITS-1:0] STRIDE; 
+   integer i, j;
+   reg [MEM_DW-1:0] rdata;
+   begin
+      $display("["); 
+      for (i=0; i<ROWS; i=i+1) begin
+         for (j=0; j<COLS; j=j+1) begin
+            rdata = i_mem.fast_read(BASE + i*STRIDE+j);
+            $write(" %d ", rdata);
+         end
+         $display(";"); 
+      end
+      $display("]"); 
+   end
+endtask
 
 always @(posedge clk) begin
    #0;
