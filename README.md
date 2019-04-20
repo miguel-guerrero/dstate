@@ -312,6 +312,7 @@ The tests use:
 
 - **iverilog** : verilog simulator    (sudo apt-get install iverilog)
 - **vppreproc** : verilog preprocessor (sudo apt-get install libverilog-perl)
+  run ./install_prep.sh if you want to install it without root access.
 
 Optional:
 
