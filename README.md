@@ -47,16 +47,16 @@ that can be used on the main functional loop. The syntax for each entry is
   declared externally by the user. The statement may still be required to 
   provide an initial value.
 
-The init_value is used to define the reset value in flops generated under
-flop declaration block
+The init_value, if provided, is used to define the reset value in flops generated 
+under flop declaration block.
 
 **SmForever/SmEnd** define the functionality of the block. This block of 
 code is the body of a loop that would repeat forever. This code can be 
 written in _sequential / behavioral style_, dstate will unwrap the sequential (non-synthesizable) code into a FSM RTL that implements the same functionality but is now _synthesizable_.
  
-The tool can also generate a wrapper for the behavioral code given to allow 
+The tool can also generate a wrapper for the behavioral code given (see --behav option) to allow 
 behavioral simulation. Both representations (behavioral with wrapper and FSM) are equivalent in functionality and can replace each other in a higher level simulation. The FSM representation is the only one synthesizable by 
-conventional tools, whereas the behavioral one is more readable and amenable to initial testing / debugging.
+conventional tools, whereas the behavioral one is more readable and amenable to initial test and debug.
 
 # AN EXAMPLE
 
@@ -310,8 +310,10 @@ Other options are available to control the name of the following items:
 
 The tests use:
 
-- **iverilog** : verilog simulator    (sudo apt-get install iverilog)
-- **vppreproc** : verilog preprocessor (sudo apt-get install libverilog-perl)
+- **iverilog** : verilog simulator    (sudo apt-get install iverilog)  
+  you can customize the simulator used under common/include.mk  
+  see https://iverilog.fandom.com/wiki/Installation_Guide to install from the source.
+- **vppreproc** : verilog preprocessor (sudo apt-get install libverilog-perl)  
   run ./install_prep.sh if you want to install it without root access.
 
 Optional:
