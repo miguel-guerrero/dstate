@@ -1,6 +1,6 @@
 
 
-# WHAT ARE THE ADVANTAGES OF USING dstage VS WRITING MY OWN FSMS?
+## WHAT ARE THE ADVANTAGES OF USING dstate VS WRITING MY OWN FSMS
 
 Use the right tool for the right problem. This is where dstate is a
 good fit:
@@ -11,16 +11,16 @@ good fit:
 - Your code may come from a complex algorithm with losts of control
 and math, however a CPU is not the right thing.
 
-If your code meets the above contiions, what dstate offers is higher level
+If your code meets the above conditions, what dstate offers is higher level
 of abstraction that will allow you to work with more readable code. This 
 reverts in higher productivity (typically the code entered is 2.5x smaller
 than the FSM equivalent) and lower chances of introducing bugs.
 
 
-# HOW IS dstate DIFFERENT FROM HLS (HIGH LEVEL SYNTHESIS)
+## HOW IS dstate DIFFERENT FROM HLS (HIGH LEVEL SYNTHESIS)
 
 * There are several flavors of HLS but in the most common one, you 
-provide constraints to the HLS tool that it trys to meet. You don't
+provide constraints to the HLS tool that it tries to meet. You don't
 have full control on the logic exactly at each clock boundary level. If 
 this is the type of HLS tool you are using, dstate can be a complement
 where that level of detailed control is needed.
@@ -29,7 +29,7 @@ where that level of detailed control is needed.
 dstate is free / open source with no strings attached to your design.
 
 
-# WHY ARE THE INPUTS STRUCTURED THIS WAY?
+## WHY ARE THE INPUTS STRUCTURED THIS WAY
 
 Initially the contents of the BLOCK within SmForever and SmEnd
 gets internally converted:
@@ -58,7 +58,7 @@ The DECLaration block is analyzed to extract initial values for
 variables. Those will help on the reset logic generation.
 
 
-# WHY ONLY BLOCKING ASSIGNEMENTS
+## WHY ONLY BLOCKING ASSIGNEMENTS
 
 BLOCK is expected to contain only blocking assignements.
 
@@ -75,7 +75,7 @@ dstate code is converted into a combinational block on one side and then
 state variables are captured for the next cycle separately. 
 
 
-# HOW IS THE CODE CONVERTED TO AN FSM
+## HOW IS THE CODE CONVERTED TO AN FSM
 
 The control structure of the code is converted into a directed graph with
 all possible execution paths. At this point the difference between them
@@ -94,7 +94,7 @@ Finally state merging is done. States are compared for structural equality
 and merged if identical.
 
 
-# CAN I HAVE LOOPS WITH NO \`tick INSIDE?
+## CAN I HAVE LOOPS WITH NO \`tick INSIDE?
 
 If the loop contains no \`tick is fine.
 However if it contains a tick conditionally (may be under a nested if) then
@@ -142,10 +142,24 @@ whereas:
         `tick; // ADDED
     end
 
-Is OK as the loop has a guaranteed clock boundary between iterations
+and
+
+    while(cond) begin
+        if (cond2) begin
+            stm1;
+            `tick;
+            smt2
+        end
+        else begin // ADDED
+            stm3;
+            `tick; // ADDED
+        end
+    end
+
+Are both OK as the loop has a guaranteed clock boundary between iterations
 
 
-# HOW IS THE CODE PARSED 
+## HOW IS THE CODE PARSED 
 
 Parsing is done only up to the level required. dstate looks for control
 structures that define the flow of execution. The contents of a basic
@@ -160,5 +174,34 @@ generated code later on, but not itself by dstate.
 
 This approach allows keeping parsing complexity low and still be reliable on the
 details required. The parser is a recursive-descent top-down parser.
+
+
+## HOW IS THIS COMPATIBLE WITH MY FLOW
+
+If your flow is pure Verilog/SystemVerilog based, the only thing you need to do
+is to pass your input files through:
+
+1. A Verilog preprocessor. dstate does not expand preprocessor macros, and they can
+be very helpful to increase abstraction (think of time consuming macros like wait until
+a condition is true). We tested with vppreproc
+2. dstate
+
+The output should be at this point the entry point to your original flow.
+
+If your flow includes more code generators it would have to be inserted at the right
+place to make it compatible with them.
+
+# HOW IS IT TESTED
+
+Most of the tests compare the generated FSM version with a behavioral version (see --behav)
+that is basically the input code with no transformations and just some wrapping logic around it.
+The purpose is to make sure the conversion is correct (not that the original design did the right
+thing).
+
+Some examples have checkers for absolute functionality (e.g matmul_simple and matmul_fast)
+
+To make sure the code is synthesizable, **yosys** open source sinthesizer has been used, comparing the 
+functionality of the lower gate-level like representatio (generic technology) with the RTL version of it.
+This step is optional and can be invoked doing 'make gls' under a given example/test directory.
 
 
