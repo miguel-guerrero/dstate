@@ -1,7 +1,18 @@
-#SIM=vcs -R
+
+#this line is to pick-up iverilog from local area if
+#installed using install_iverilog.sh
+export PATH:=$(HOME)/iverilog/bin:$(PATH)
+
 PREPRO=vppreproc -noline -noblank
+
+#--for iverilog
 COMP=iverilog 
 SIM=vvp
+
+#--for VCS
+#COMP=echo
+#SIM=vcs -R
+
 CURR=$(shell pwd)
 TOFSM=../../dstate.py
 TOFSMOPTS?=-rename_states -sd 1 

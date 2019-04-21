@@ -312,13 +312,17 @@ The tests use:
 
 - **iverilog** : verilog simulator    (sudo apt-get install iverilog)  
   you can customize the simulator used under common/include.mk  
-  see https://iverilog.fandom.com/wiki/Installation_Guide to install from the source.
+  To install it locally from the source without root access use install_iverilog.sh  
+  See http://iverilog.icarus.com
+
 - **vppreproc** : verilog preprocessor (sudo apt-get install libverilog-perl)  
   run ./install_prep.sh if you want to install it without root access.
 
 Optional:
 
-- **gtkwave** : waveform viewer      (sudo apt-get install gtkwave)
+- **gtkwave** : waveform viewer      (sudo apt-get install gtkwave)  
+  see http://gtkwave.sourceforge.net
+
 - **yosys** : logic synthesis      (http://www.clifford.at/yosys) 
              required only if running GLS over generated code 
 
