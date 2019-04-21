@@ -20,7 +20,7 @@ than the FSM equivalent) and lower chances of introducing bugs.
 ## HOW IS dstate DIFFERENT FROM HLS (HIGH LEVEL SYNTHESIS)
 
 * There are several flavors of HLS but in the most common one, you 
-provide constraints to the HLS tool that it tries to meet. You don't
+provide constraints to the HLS tool, and it tries to meet them. You don't
 have full control on the logic exactly at each clock boundary level. If 
 this is the type of HLS tool you are using, dstate can be a complement
 where that level of detailed control is needed.
@@ -111,10 +111,10 @@ E.g. this is ok:
     end
     `tick
 
-    In this case the for loop must be synthesizable by the target synthesis
-    tool itself (it has to have compile time inferable number of iterations
-    and comply with synthesis tool requirements). I.e. the loop is emitted
-    as-is to the output.
+In this case the for loop must be synthesizable by the target synthesis
+tool itself (it has to have compile time inferable number of iterations
+and comply with synthesis tool requirements). I.e. the loop is emitted
+as-is to the output.
 
 however:
 
@@ -127,8 +127,8 @@ however:
         stm3;
     end
 
-    is currently unsuported as if cond2 is false we'll have a loop
-    that is iterating completly without clocks in between
+is currently unsuported as if cond2 is false we'll have a loop
+that is iterating completly without clocks in between
 
 whereas:
 
@@ -198,10 +198,10 @@ that is basically the input code with no transformations and just some wrapping 
 The purpose is to make sure the conversion is correct (not that the original design did the right
 thing).
 
-Some examples have checkers for absolute functionality (e.g matmul_simple and matmul_fast)
+Some examples have checkers for absolute functionality (e.g _matmul_simple_ and _matmul_fast_ examples)
 
 To make sure the code is synthesizable, **yosys** open source sinthesizer has been used, comparing the 
-functionality of the lower gate-level like representatio (generic technology) with the RTL version of it.
+functionality of the lower gate-level like representation (generic technology) with the RTL version of it.
 This step is optional and can be invoked doing 'make gls' under a given example/test directory.
 
 
