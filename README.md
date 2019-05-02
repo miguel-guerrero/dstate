@@ -324,7 +324,7 @@ Optional:
   see http://gtkwave.sourceforge.net
 
 - **yosys** : logic synthesis      (http://www.clifford.at/yosys) 
-             required only if running GLS over generated code 
+             used only if running GLS over generated code (make gls)
 
 # LICENSING
 
