@@ -98,7 +98,7 @@ or putting it in a different way:
         }
         a_i0 += aSTRIDE;
         c_i0 += cSTRIDE;
-}
+    }
 ```
 
 At this point the algorithm can be written to HW adding operand precission
