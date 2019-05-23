@@ -143,8 +143,8 @@ class TopDown:
                     n.child[i] = to_node
  
     def node_preinsert(self, new_node, ref_node):
-       self.change_links_to(new_node, ref_node)
-       new_node.nxt = ref_node
+        self.change_links_to(new_node, ref_node)
+        new_node.nxt = ref_node
 
     def node_deep_clone(self, n): # not used yet
         if n is None:
@@ -171,81 +171,81 @@ class TopDown:
     #--------------------------------------------------------------------
     def get_token(self):
 
-       def consume_pattern(pat):
-           m = re.match(pat, self.parse_in[self.parse_consumed:], re.S)
-           if m:
-               self.parse_token_text = m.group(1)
-               self.parse_consumed += len(m.group(1))
-               return True
-           return False
-
-       loc_beg = self.parse_consumed
-       tok = None
-       while tok is None:
-           if self.parse_consumed == self.parse_in_len:
-               tok = self.tokens.TK_EOF #end
-           else:
-               for token_i in list(self.tokens):
-                   if consume_pattern(token_i.value.pat):
-                       if not token_i.value.is_skip:
-                           tok = token_i
-                       break
-       #tok.loc_beg = self.file_base + ":" + str(loc_beg)
-       #tok.loc_end = self.file_base + ":" + str(self.parse_consumed-1)
-
-       #print(f"returing tok={tok} = <{self.parse_token_text}>", file=sys.stderr)
-       self.parse_last_token = tok
+        def consume_pattern(pat):
+            m = re.match(pat, self.parse_in[self.parse_consumed:], re.S)
+            if m:
+                self.parse_token_text = m.group(1)
+                self.parse_consumed += len(m.group(1))
+                return True
+            return False
+ 
+        loc_beg = self.parse_consumed
+        tok = None
+        while tok is None:
+            if self.parse_consumed == self.parse_in_len:
+                tok = self.tokens.TK_EOF #end
+            else:
+                for token_i in list(self.tokens):
+                    if consume_pattern(token_i.value.pat):
+                        if not token_i.value.is_skip:
+                            tok = token_i
+                        break
+        #tok.loc_beg = self.file_base + ":" + str(loc_beg)
+        #tok.loc_end = self.file_base + ":" + str(self.parse_consumed-1)
+ 
+        #print(f"returing tok={tok} = <{self.parse_token_text}>", file=sys.stderr)
+        self.parse_last_token = tok
 
     def parse_get_char(self):
-       if self.parse_consumed == self.parse_in_len:
-           return None
-       c = self.parse_in[self.parse_consumed]
-       self.parse_consumed += 1
-       return c
+        if self.parse_consumed == self.parse_in_len:
+            return None
+        c = self.parse_in[self.parse_consumed]
+        self.parse_consumed += 1
+        return c
 
     def token_ahead(self):
-       if self.parse_last_token is None:
-           self.get_token()
-       return self.parse_last_token
+        if self.parse_last_token is None:
+            self.get_token()
+        return self.parse_last_token
 
     def token_match(self, tok):
-       if self.token_ahead() == tok:
-          self.parse_last_token = None
-          return True
-       return False
+        if self.token_ahead() == tok:
+            self.parse_last_token = None
+            return True
+        return False
 
     #--------------------------------------------------------------------
     # to build more complex rules
     #--------------------------------------------------------------------
 
     def must(self, rule_rc, msg):
-       if not rule_rc:
-          self.error(msg)
-       return True
+        if not rule_rc:
+            self.error(msg)
+        return True
 
     def optional(self, rule_rc):
-       return True
+        return True
 
     #arg is the name of the rule as a string
     def one_or_more(self, rule):
-       if rule():
-          first = self.stk_top()
-          while rule():
-             prev, last = self.stk_pop(2)
-             prev.nxt = last
-             self.stk_push(last)
-          self.stk_pop(1)
-          self.stk_push(first)
-          return True
-       return False
+        if rule():
+            first = self.stk_top()
+            while rule():
+                prev, last = self.stk_pop(2)
+                prev.nxt = last
+                self.stk_push(last)
+            self.stk_pop(1)
+            self.stk_push(first)
+            return True
+        return False
 
     #--------------------------------------------------------------------
     # Parse tree related routines
     #--------------------------------------------------------------------
     def st_show_all(self, hdr):
-       print(f"--- {hdr} ---")
-       for node in self.nodes: #TODO sorted
-          print(node.inline_str())
+        print(f"--- {hdr} ---")
+        for node in self.nodes: #TODO sorted
+            print(node.inline_str())
 
     def st_show_from_node(self, name, root, path="./"):
 
