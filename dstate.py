@@ -250,13 +250,6 @@ class FsmConverter:
                 parser.st_show_from_node(f"{self.sm_num}_04_after_convert_to_dag", root)
                 parser.dump_dot(f"{self.sm_num}_04_after_convert_to_dag", root)
   
-            if False:
-                self.split_states(parser, root)
-  
-                if self.args.dbg > 0:
-                    parser.st_show_from_node(f"{self.sm_num}_08_after_split_states", root)
-                    parser.dump_dot(f"{self.sm_num}_08_after_split_states", root)
-  
             self.merge_states(parser, root, ind)
   
             if self.args.dbg > 0:
@@ -271,6 +264,7 @@ class FsmConverter:
             ena = ""
             if self.args.ena != "":
                 ena = self.args.ena + str(self.sm_num)
+
             #--- Behavioral output
             print()
             print (f"// begin dstate{self.sm_num}")
@@ -340,21 +334,6 @@ class FsmConverter:
                 if node.typ == "cs":
                     error("case with `tick inside are not supported yet")
    
-                elif node.typ == "do" and False:
-   
-                    body = node.child[1]
-                    p.change_links_to(to_node=body, from_node=node)
-                    last_in_body = p.node_find_last(body)
-                    last_in_body.nxt = node
-    
-                    node.typ = "dop"
-                    node.child[1] = body
-                    node.child[2] = org_nxt
-                    node.nxt = None
-    
-                    self.expand_tree_structs(p, root, body, ind, cnt)
-                    expanded = True
-   
                 elif node.typ == "eif":
                     assert False, "unexpected typ eif in expand_tree_structs"
    
@@ -369,7 +348,7 @@ class FsmConverter:
                     init_node = p.node_add("sn", code=init, nxt=node, child=[None, None, None])
                     p.node_preinsert(init_node, node)
     
-                    node.typ="wh"
+                    node.typ = "wh"
                     node.code = cond
     
                     post_node = p.node_add("sn", code=post, nxt=None,  child=[None, None, None])
@@ -458,46 +437,6 @@ class FsmConverter:
   
             node = org_nxt
 
-
-    def split_states(self, p, root):
-        cnt=0
-        split=set()
-        while True:
-            any_split=False
-            for node in p.nodes:
-                if node.typ != "tk":
-                    hfrom = p.links_to(node)
-                    from_nodes = list(hfrom.keys()) # TODO sort
-                    if self.args.dbg >=1:
-                        print(f"// id{node.uid} has {len(from_nodes)} links to it")
-                    if len(from_nodes) >= 2:
-                        if node.uid in split:
-                            error(f"SM{self.sm_num} There is a loop path without `tick involving node {node}")
-                        any_split=True
-                        msg = ""
-                        for src in from_nodes:
-                            if src.uid != from_nodes[-1].uid:
-                                dst = p.node_clone(node)
-                            else:
-                                dst = node
-                            msg += f"{dst.uid} "
-                            for t in hfrom[src]:
-                                if t == "bt":
-                                    src.child[1]=dst
-                                if t == "bf":
-                                    src.child[2]=dst
-                                if t == "nx":
-                                    src.nxt=dst
-                        split.add(node.uid)
-                        if self.args.dbg > 1:
-                            msg += f"processed out of {node.uid}"
-                            p.st_show_from_node(f"{self.sm_num}_07_during_split_states{cnt}", root)
-                            p.dump_dot(f"{self.sm_num}_07_during_split_states{cnt}", root, msg, 
-                                hilight=[n.uid for n in from_nodes])
-                            cnt += 1
-            if not any_split:
-                break
-
     def merge_states(self, p, root, ind):
         cnt = 0
         tab = self.args.tab
@@ -528,9 +467,6 @@ class FsmConverter:
                             if code_by_node[i] == code:
                                nodes_to_merge.append(i)
     
-                        #if self.args.dbg > 0:
-                        #   print(f"// ids {nodes_to_merge} are mergeable in mode {mode}")
-    
                         if mode == "abs":
                             some_merged = self.merge_ids_abs(p, nodes_to_merge, code)
                         else:
@@ -538,6 +474,7 @@ class FsmConverter:
                             some_merged = self.merge_ids_rel(p, nodes_to_merge, code)
                         if some_merged:
                             break
+
                 if some_merged:
                     if self.args.dbg > 1:
                         p.st_show_from_node(f"{self.sm_num}_05_during_merging{cnt}", root)
@@ -615,7 +552,7 @@ class FsmConverter:
         tab = self.args.tab
         nxt = self.args.next_suffix
         curr = self.args.curr_suffix
-        mode="rel"
+        mode = "rel"
  
         ena_guard = ""
         if self.args.ena != "":
@@ -741,9 +678,9 @@ class FsmConverter:
                error(f"SM{self.sm_num} There is a loop path without `tick within", 
                      f"the set of nodes {visited_str}. Currently @{node.uid}. See error.dot/.dbg")
           
-            nx   = node.nxt
-            ch1  = node.child[1]
-            ch2  = node.child[2]
+            nx  = node.nxt
+            ch1 = node.child[1]
+            ch2 = node.child[2]
   
             if node.typ == "eif":
                 flagged_visited(node)
@@ -763,7 +700,7 @@ class FsmConverter:
                         out += ind + "else begin\n"
                         out += self.dump_subtree_sm(n, ind + tab, mode, state_node, visited)
                         out += ind + "end\n"
-                node=None
+                node = None
             elif node.typ == "if":
                 flagged_visited(node)
                 cond = node.code
@@ -779,21 +716,21 @@ class FsmConverter:
                         out += ind + "else begin\n"
                         out += self.dump_subtree_sm(ch2, ind + tab, mode, state_node, visited)
                         out += ind + "end\n"
-                node=nx
+                node = nx
             elif node.typ == "fo":
                 flagged_visited(node)
                 cond = node.code
                 out += ind + f"for ({cond}) begin" + "\n"
                 out += self.dump_subtree_sm(ch1, ind + tab, mode, state_node, visited)
                 out += ind + "end\n"
-                node=nx
+                node = nx
             elif node.typ == "wh":
                 flagged_visited(node)
                 cond = node.code
                 out += ind + f"while ({cond}) begin" + "\n"
                 out += self.dump_subtree_sm(ch1, ind + tab, mode, state_node, visited)
                 out += ind + "end\n"
-                node=nx
+                node = nx
             elif node.typ == "sn":
                 flagged_visited(node)
                 out_code = node.code
@@ -808,14 +745,14 @@ class FsmConverter:
                 out += ind + f"case ({cond})" + "\n"
                 out += self.dump_subtree_sm(ch1, ind + tab, mode, state_node, visited)
                 out += ind + "endcase\n"
-                node=nx
+                node = nx
             elif node.typ == "csb":
                 flagged_visited(node)
                 expr = node.code
                 out += ind + f"{expr} begin" + "\n"
                 out += self.dump_subtree_sm(ch1, ind + tab, mode, state_node, visited)
                 out += ind + "end\n"
-                node=nx
+                node = nx
             elif node.typ == "tk":
                 if mode == "rel" and node == state_node:
                     out += ind + "// stay\n"
