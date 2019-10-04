@@ -40,7 +40,7 @@ class VlogTokens(Enum):
     TK_ENDCASE = TokenAttrs(r'endcase\b')
     TK_BEGIN = TokenAttrs(r'begin\b')
     TK_END = TokenAttrs(r'end\b')
-    TK_TICK = TokenAttrs(r'`tick\b')
+    TK_TICK = TokenAttrs(r'`?tick\b')
     TK_OPEN_PAR = TokenAttrs("\\(")
     TK_SEMICOLON = TokenAttrs(";")
     TK_SN = TokenAttrs(r'(.*?);', True)

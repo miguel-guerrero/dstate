@@ -1,8 +1,8 @@
 // Useful macro definitions
 `define wait1(cond) `tick; while(~(cond)) `tick 
-`define incr(x, amnt=1'b1)  x = x + amnt
-`define loop(var, val='b0)  var = val; do begin
-`define next(var, limit, inc=1'b1) var = var + inc; end while(var != limit)
+`define incr(x, amnt)  x = x + amnt
+`define loop(var)  var = 0; do begin
+`define next(var, limit) var = var + 1'b1; end while(var != limit)
 
 // To abstract memory read/write operations
 `define MEM_write(addr, wdata)   {mem_wdata, mem_addr, mem_write, mem_req} = {wdata, addr, 1'b1, 1'b1}
@@ -53,14 +53,14 @@ SmForever
             b_kj = b_0j;
             `loop(k)
                 /// dot product loop
-                `tick; `MEM_read(a_ik); `incr(a_ik);
+                `tick; `MEM_read(a_ik); `incr(a_ik, 1'b1);
                 `tick; `MEM_read(b_kj); `incr(b_kj, bSTRIDE); 
             `next(k, aCOLS);
             `tick;
             `MEM_done;
             row_end=1;
             `wait1(acc_rdy);
-            `MEM_write(c_ij, acc); `incr(b_0j); `incr(c_ij); row_end=0;
+            `MEM_write(c_ij, acc); `incr(b_0j, 1'b1); `incr(c_ij, 1'b1); row_end=0;
             `tick;
         `next(j, bCOLS);
         `MEM_done;

@@ -3,7 +3,7 @@
 #installed using install_iverilog.sh
 export PATH:=$(HOME)/iverilog/bin:$(PATH)
 
-PREPRO=vppreproc -noline -noblank
+PREPRO=../../sv_preproc.sh 
 
 #--for iverilog
 COMP=iverilog 
@@ -19,7 +19,7 @@ TOFSMOPTS?=-rename_states -sd 1
 TC?=
 
 
-all: beh_post.log rtl_post.log
+all: rtl_post.log beh_post.log 
 	@diff beh_post.log rtl_post.log && echo TEST MATCH PASSED || \
             echo TEST MATCH FAILED
 
@@ -31,10 +31,10 @@ guild: beh_post.log
 	cp beh_post.log gold.log
 
 %.vpost: %.v
-	$(PREPRO) $< > $@
+	$(PREPRO) $< $@ -Dtick=tick
 
 %.vpost_behav: %.v
-	$(PREPRO) -DBEHAV $< > $@
+	$(PREPRO) $< $@ -Dtick=tick -DBEHAV 
 
 out_sm.v : in$(TC).vpost $(TOFSM)
 	@echo -----------------------------------------------------------

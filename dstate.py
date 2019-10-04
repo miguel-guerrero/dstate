@@ -295,6 +295,8 @@ class FsmConverter:
                 print (ind + tab + "// SmCombo local begin")
                 indpr(ind + tab, self.combo_local_decl_in)
                 print (ind + tab + "// SmCombo local end")
+
+            beh_in = re.sub('`?tick', '`tick', beh_in)
   
             print (ind +   tab + f"if ({self.not_reset_cond}) begin")
             print (ind + 2*tab +  f"begin : {self.oname}_loop")
@@ -332,7 +334,7 @@ class FsmConverter:
             if p.has_tick(node):
   
                 if node.typ == "cs":
-                    error("case with `tick inside are not supported yet")
+                    error("case with tick inside are not supported yet")
    
                 elif node.typ == "eif":
                     assert False, "unexpected typ eif in expand_tree_structs"
@@ -536,7 +538,7 @@ class FsmConverter:
         node = find_first_tk_sub(node)
         if node is not None:
             return node
-        error("Cannot determine initial state (no `tick?)")
+        error("Cannot determine initial state (no tick?)")
 
 
     def state_name(self, node):
@@ -675,7 +677,7 @@ class FsmConverter:
                visited_str = ', '.join([str(x) for x in visited])
                self.parser.st_show_from_node(f"error", self.root)
                self.parser.dump_dot(f"error", self.root, msg='loop within '+visited_str, hilight=list(visited))
-               error(f"SM{self.sm_num} There is a loop path without `tick within", 
+               error(f"SM{self.sm_num} There is a loop path without tick within", 
                      f"the set of nodes {visited_str}. Currently @{node.uid}. See error.dot/.dbg")
           
             nx  = node.nxt

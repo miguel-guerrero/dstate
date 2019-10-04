@@ -1,5 +1,5 @@
 // Usefull macros
-`define wait1(cond) `tick; while(~(cond)) `tick 
+`define wait1(cond) tick; while(~(cond)) tick 
 `define incr(x) x=x+1'b1
 
 // To abstract memory access
@@ -42,35 +42,35 @@ SmForever
     a_i0 = aBASE;
     c_i0 = cBASE;
     i = 0;
-    `tick;
+    tick;
     while (i != aROWS) begin
         b_0j = bBASE;
         c_ij = c_i0;
         j = 0;
-        `tick;
+        tick;
         while (j != bCOLS) begin
             a_ik = a_i0;
             b_kj = b_0j;
             acc = 0;
             k = 0;
-            `tick; `MEM_read(a_ik); `incr(a_ik);
-            `tick; `MEM_read(b_kj); b_kj = b_kj + bSTRIDE; 
+            tick; `MEM_read(a_ik); `incr(a_ik);
+            tick; `MEM_read(b_kj); b_kj = b_kj + bSTRIDE; 
             while (k != aCOLS) begin
-                `tick; `incr(k);
-                `tick; `MEM_read(a_ik); `incr(a_ik);        a = mem_rdata[PREC-1:0];            
-                `tick; `MEM_read(b_kj); b_kj=b_kj+bSTRIDE;  acc = acc + a[PREC-1:0] * mem_rdata[PREC-1:0];
+                tick; `incr(k);
+                tick; `MEM_read(a_ik); `incr(a_ik);        a = mem_rdata[PREC-1:0];            
+                tick; `MEM_read(b_kj); b_kj=b_kj+bSTRIDE;  acc = acc + a[PREC-1:0] * mem_rdata[PREC-1:0];
             end
             `MEM_done;
-            `tick; `MEM_write(c_ij, acc); `incr(b_0j); `incr(c_ij); `incr(j);
-            `tick; `MEM_done;
+            tick; `MEM_write(c_ij, acc); `incr(b_0j); `incr(c_ij); `incr(j);
+            tick; `MEM_done;
         end
         a_i0 = a_i0 + aSTRIDE;
         c_i0 = c_i0 + cSTRIDE;
         `incr(i);
-        `tick;
+        tick;
     end
     ret = 1;
-    `tick;
+    tick;
 SmEnd
 
 endmodule
