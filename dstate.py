@@ -256,7 +256,7 @@ class FsmConverter:
                 parser.st_show_from_node(f"{self.sm_num}_09_after_merge_states", root)
                 parser.dump_dot(f"{self.sm_num}_09_after_merge_states", root)
   
-            self.dump_tree_sm(parser, root, ind, line_base, file_base)
+            self.dump_tree_sm(parser, root, ind)
  
         else:
             sd_stm = " "+self.args.sd +";" if self.args.sd else ""
@@ -549,7 +549,7 @@ class FsmConverter:
                 st_name = f"{self.oprefix}{renamed}"
         return st_name;
 
-    def dump_tree_sm(self, p, root, ind, line_base, file_base):
+    def dump_tree_sm(self, p, root, ind):
         sd = self.args.sd
         tab = self.args.tab
         nxt = self.args.next_suffix
