@@ -163,26 +163,25 @@ The example produces the following output once processed:
  71     // SmEnd
  72 end // dstate0_combo
  73 
- 74 
- 75 always @(posedge clk or negedge rst_n) begin : dstate0
- 76     if (~rst_n) begin
- 77         // SmBegin ff init begin
- 78         motor_up <= 0;
- 79         motor_dn <= 0;
- 80         // SmBegin ff init end
- 81         state0 <= SM0_0;
- 82     end
- 83     else begin
- 84         // Update ffs with next state vars begin
- 85         motor_up <= motor_up_nxt;
- 86         motor_dn <= motor_dn_nxt;
- 87         // Update ffs with next state vars end
- 88         state0 <= state0_nxt;
- 89     end
- 90 end
- 91 // end dstate0
- 92 
- 93 endmodule
+ 74 always @(posedge clk or negedge rst_n) begin : dstate0
+ 75     if (~rst_n) begin
+ 76         // SmBegin ff init begin
+ 77         motor_up <= 0;
+ 78         motor_dn <= 0;
+ 79         // SmBegin ff init end
+ 80         state0 <= SM0_0;
+ 81     end
+ 82     else begin
+ 83         // Update ffs with next state vars begin
+ 84         motor_up <= motor_up_nxt;
+ 85         motor_dn <= motor_dn_nxt;
+ 86         // Update ffs with next state vars end
+ 87         state0 <= state0_nxt;
+ 88     end
+ 89 end
+ 90 // end dstate0
+ 91 
+ 92 endmodule
 
 ```
 
