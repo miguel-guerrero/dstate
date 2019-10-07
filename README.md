@@ -32,20 +32,12 @@ Single line comments // style are allowed
 Flop declaration Section is used to add 'reg' type of variable definitions 
 that can be used on the main functional loop. The syntax for each entry is
 
-    flop_decl := ['local'] ['reg'] [width_decl] var_name ['=' initial_value] ';'
+    flop_decl := 'reg' [width_decl] var_name ['=' initial_value] ';'
 
     width_decl := /*empty*/ 
                 | '[' integer_expr ':' integer_expr ']'
 
     varname := verilog_identifier
- 
-- if **local** is specified, the declaration is local to the block generated
-- **local reg** is equivalent to local
-- if only **reg** is speficied, the declaration is made outside the block 
-  to have module scope
-- if neither **local** nor **reg** are specified, the var is expected to be 
-  declared externally by the user. The statement may still be required to 
-  provide an initial value.
 
 The init_value, if provided, is used to define the reset value in flops generated 
 under flop declaration block.
@@ -58,12 +50,14 @@ The tool can also generate a wrapper for the behavioral code given (see --behav 
 behavioral simulation. Both representations (behavioral with wrapper and FSM) are equivalent in functionality and can replace each other in a higher level simulation. The FSM representation is the only one synthesizable by 
 conventional tools, whereas the behavioral one is more readable and amenable to initial test and debug.
 
+In general if your behavioral code doesn't work, there is a design issue with your code. If it works but the FSM generated code doesn't with the same test-bench and inputs, you may be facing a bug. Please report it.
+
 # AN EXAMPLE
 
 The following example gives an quick overview of the mode of operation. It implements a simple automatic door controller that drives two signals (_motor_up/motor_dn_) once the door is activated throgh the input _activate_. If the door is up (up_limit is active) and the door is activated, the controller will drive the door down until the sensor for down position is active (_motor_dn_). Similarty if we estart on the down position the activation will drive the door till it reaches the up position. The example is based on the following [lecture notes](https://www.academia.edu/21043868/Logic_Design_Verilog_FSM_in_class_design_example_s_1_Verilog_FSM_Design_Example_Automatic_Garage_Door_Opener_and_Timers)
 
 ```systemverilog
-      1 `define wait1(cond) `tick; while(~(cond)) `tick
+      1 `define wait1(cond) tick; while(~(cond)) tick
       2 
       3 module motor(
       4     input clk, activate, up_limit, dn_limit, rst_n,
@@ -96,98 +90,99 @@ In the code above the macro **\`wait1(cond)** is defined to wait until a conditi
 The example produces the following output once processed:
 
 ```systemverilog
-     1 module motor(
-     2     input clk, activate, up_limit, dn_limit, rst_n,
-     3     output motor_up, motor_dn
-     4 );
-     5 
-     6 // begin dstate0
-     7 localparam SM0_0 = 0;
-     8 localparam SM0_1 = 1;
-     9 localparam SM0_2 = 2;
-    10 localparam SM0_3 = 3;
-    11 localparam SM0_4 = 4;
-    12 always @(posedge clk or negedge rst_n) begin : dstate0
-    13     // SmBegin ff local begin
-    14     reg  motor_up_q, motor_up;
-    15     reg  motor_dn_q, motor_dn;
-    16     // SmBegin ff local end
-    17     reg [2:0] state0_q, state0;
-    18     if (~rst_n) begin
-    19         // SmBegin ff init begin
-    20         motor_up_q <= 0;
-    21         motor_dn_q <= 0;
-    22         // SmBegin ff init end
-    23         state0_q <= SM0_0;
-    24     end
-    25     else begin
-    26         // set defaults for next state vars begin
-    27         motor_up = motor_up_q;
-    28         motor_dn = motor_dn_q;
-    29         // set defaults for next state vars end
-    30         state0 = state0_q;
-    31         // SmForever
-    32         case (state0_q)
-    33             SM0_0: begin
-    34                 if (up_limit) begin
-    35                     state0 = SM0_1;
-    36                 end
-    37                 else begin
-    38                     state0 = SM0_3;
-    39                 end
-    40             end
-    41             SM0_1: begin
-    42                 if (~(activate)) begin
-    43                     // stay
-    44                 end
-    45                 else begin
-    46                     motor_dn = 1;
-    47                     state0 = SM0_2;
-    48                 end
-    49             end
-    50             SM0_2: begin
-    51                 if (~(dn_limit)) begin
-    52                     // stay
-    53                 end
-    54                 else begin
-    55                     motor_dn = 0;
-    56                     state0 = SM0_0;
-    57                 end
-    58             end
-    59             SM0_3: begin
-    60                 if (~(activate)) begin
-    61                     // stay
-    62                 end
-    63                 else begin
-    64                     motor_up = 1;
-    65                     state0 = SM0_4;
-    66                 end
-    67             end
-    68             SM0_4: begin
-    69                 if (~(up_limit)) begin
-    70                     // stay
-    71                 end
-    72                 else begin
-    73                     motor_up = 0;
-    74                     state0 = SM0_0;
-    75                 end
-    76             end
-    77         endcase
-    78         // SmEnd
-    79         // Update ffs with next state vars begin
-    80         motor_up_q <= motor_up;
-    81         motor_dn_q <= motor_dn;
-    82         // Update ffs with next state vars end
-    83         state0_q <= state0;
-    84     end
-    85 end
-    86 // drop_suffix begin
-    87 wire  motor_up = dstate0.motor_up_q;
-    88 wire  motor_dn = dstate0.motor_dn_q;
-    89 // drop_suffix end
-    90 // end dstate0
-    91 
-    92 endmodule
+  1 module motor(
+  2     input clk, activate, up_limit, dn_limit, rst_n,
+  3     output motor_up, motor_dn
+  4 );
+  5 
+  6 // begin dstate0
+  7 localparam SM0_0 = 0;
+  8 localparam SM0_1 = 1;
+  9 localparam SM0_2 = 2;
+ 10 localparam SM0_3 = 3;
+ 11 localparam SM0_4 = 4;
+ 12 // SmBegin ff decl begin
+ 13 reg  motor_up, motor_up_nxt;
+ 14 reg  motor_dn, motor_dn_nxt;
+ 15 // SmBegin ff decl end
+ 16 reg [2:0] state0, state0_nxt;
+ 17 
+ 18 always @* begin : dstate0_combo
+ 19     // set defaults for next state vars begin
+ 20     motor_up_nxt = motor_up;
+ 21     motor_dn_nxt = motor_dn;
+ 22     // set defaults for next state vars end
+ 23     state0_nxt = state0;
+ 24     // SmForever
+ 25     case (state0)
+ 26         SM0_0: begin
+ 27                 if (up_limit) begin
+ 28                     state0_nxt = SM0_1;
+ 29                 end
+ 30                 else begin
+ 31                     state0_nxt = SM0_3;
+ 32                 end
+ 33         end
+ 34         SM0_1: begin
+ 35                 if (~(activate)) begin
+ 36                     // stay
+ 37                 end
+38                 else begin
+ 39                     motor_dn_nxt = 1;
+ 40                     state0_nxt = SM0_2;
+ 41                 end
+ 42         end
+ 43         SM0_2: begin
+ 44                 if (~(dn_limit)) begin
+ 45                     // stay
+ 46                 end
+ 47                 else begin
+ 48                     motor_dn_nxt = 0;
+ 49                     state0_nxt = SM0_0;
+ 50                 end
+ 51         end
+ 52         SM0_3: begin
+ 53                 if (~(activate)) begin
+ 54                     // stay
+ 55                 end
+ 56                 else begin
+ 57                     motor_up_nxt = 1;
+ 58                     state0_nxt = SM0_4;
+ 59                 end
+ 60         end
+ 61         SM0_4: begin
+ 62                 if (~(up_limit)) begin
+ 63                     // stay
+ 64                 end
+ 65                 else begin
+ 66                     motor_up_nxt = 0;
+ 67                     state0_nxt = SM0_0;
+ 68                 end
+ 69         end
+ 70     endcase
+ 71     // SmEnd
+ 72 end // dstate0_combo
+ 73 
+ 74 always @(posedge clk or negedge rst_n) begin : dstate0
+ 75     if (~rst_n) begin
+ 76         // SmBegin ff init begin
+ 77         motor_up <= 0;
+ 78         motor_dn <= 0;
+ 79         // SmBegin ff init end
+ 80         state0 <= SM0_0;
+ 81     end
+ 82     else begin
+ 83         // Update ffs with next state vars begin
+ 84         motor_up <= motor_up_nxt;
+ 85         motor_dn <= motor_dn_nxt;
+ 86         // Update ffs with next state vars end
+ 87         state0 <= state0_nxt;
+ 88     end
+ 89 end
+ 90 // end dstate0
+ 91 
+ 92 endmodule
+
 ```
 
  Few notes:
@@ -222,9 +217,8 @@ For mode details look into **examples** directory, for example matmul_simple.
  
  Note that a clock event (wait for clock edge) is represented by the 
 
-    `tick; 
+    tick; 
  
- macro on the input representation. The macro is internally defined based on the clock polarity and reset type given to the tool.
 
 # CONTROL
 
@@ -246,11 +240,9 @@ For a description of all the options do:
       -h, --help            show this help message and exit
       -behav                Output is behavioral (default, synthesizable RTL)
       -next_suffix NEXT_SUFFIX
-                            Suffix for next state variables (default, no suffix)
+                            Suffix for next state variables (default, '_nxt')
       -curr_suffix CURR_SUFFIX
-                            Suffix for next state variables (default, '_r')
-      -drop_suffix          Rename FFs to be have no suffix (see -curr_suffix)
-                            outside generated block (default, false)
+                            Suffix for next state variables (default, no-suffix)
       -ena ENA              SM enable signal base (default, no enable generated,
                             SM number will be appended)
       -local_next           Keep declarations of next state variables local
@@ -266,7 +258,7 @@ For a description of all the options do:
                             active high)
       -name NAME            Used to derive block name etc. (default, 'dstate'
                             followed by SM instance number)
-      -tab TAB              Used to indent output (default, uses tabs)
+      -tab TAB              Used to indent output (default, four spaces)
       -sd SD                Delay for <= assignements (default, no delay)
       -falling_edge         Clock active on falling edge (default, rising)
       -sync_rst             Synchronous reset (default, async)
@@ -316,7 +308,11 @@ The tests use:
   See http://iverilog.icarus.com
 
 - **vppreproc** : verilog preprocessor (sudo apt-get install libverilog-perl)  
-  run ./install_prep.sh if you want to install it without root access.
+  run ./install_prep.sh if you want to install it without root access. It iverilog
+  is being used as simulator, then this dependency is not required (iverilog can be
+  used as pre-processor as well). However if you decide you use your own simulator,
+  one of the two, vppreproc or iverilog, must be installed to be used as preprocessor.
+  The scripts expect one of them ot be available in the PATH
 
 Optional:
 
