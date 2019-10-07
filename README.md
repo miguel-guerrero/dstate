@@ -32,20 +32,12 @@ Single line comments // style are allowed
 Flop declaration Section is used to add 'reg' type of variable definitions 
 that can be used on the main functional loop. The syntax for each entry is
 
-    flop_decl := ['local'] ['reg'] [width_decl] var_name ['=' initial_value] ';'
+    flop_decl := 'reg' [width_decl] var_name ['=' initial_value] ';'
 
     width_decl := /*empty*/ 
                 | '[' integer_expr ':' integer_expr ']'
 
     varname := verilog_identifier
- 
-- if **local** is specified, the declaration is local to the block generated
-- **local reg** is equivalent to local
-- if only **reg** is speficied, the declaration is made outside the block 
-  to have module scope
-- if neither **local** nor **reg** are specified, the var is expected to be 
-  declared externally by the user. The statement may still be required to 
-  provide an initial value.
 
 The init_value, if provided, is used to define the reset value in flops generated 
 under flop declaration block.
@@ -58,12 +50,14 @@ The tool can also generate a wrapper for the behavioral code given (see --behav 
 behavioral simulation. Both representations (behavioral with wrapper and FSM) are equivalent in functionality and can replace each other in a higher level simulation. The FSM representation is the only one synthesizable by 
 conventional tools, whereas the behavioral one is more readable and amenable to initial test and debug.
 
+In general if your behavioral code doesn't work, there is a design issue with your code. If it works but the FSM generated code doesn't with the same test-bench and inputs, you may be facing a bug. Please report it.
+
 # AN EXAMPLE
 
 The following example gives an quick overview of the mode of operation. It implements a simple automatic door controller that drives two signals (_motor_up/motor_dn_) once the door is activated throgh the input _activate_. If the door is up (up_limit is active) and the door is activated, the controller will drive the door down until the sensor for down position is active (_motor_dn_). Similarty if we estart on the down position the activation will drive the door till it reaches the up position. The example is based on the following [lecture notes](https://www.academia.edu/21043868/Logic_Design_Verilog_FSM_in_class_design_example_s_1_Verilog_FSM_Design_Example_Automatic_Garage_Door_Opener_and_Timers)
 
 ```systemverilog
-      1 `define wait1(cond) `tick; while(~(cond)) `tick
+      1 `define wait1(cond) tick; while(~(cond)) tick
       2 
       3 module motor(
       4     input clk, activate, up_limit, dn_limit, rst_n,
@@ -222,9 +216,8 @@ For mode details look into **examples** directory, for example matmul_simple.
  
  Note that a clock event (wait for clock edge) is represented by the 
 
-    `tick; 
+    tick; 
  
- macro on the input representation. The macro is internally defined based on the clock polarity and reset type given to the tool.
 
 # CONTROL
 
@@ -246,11 +239,9 @@ For a description of all the options do:
       -h, --help            show this help message and exit
       -behav                Output is behavioral (default, synthesizable RTL)
       -next_suffix NEXT_SUFFIX
-                            Suffix for next state variables (default, no suffix)
+                            Suffix for next state variables (default, '_nxt')
       -curr_suffix CURR_SUFFIX
-                            Suffix for next state variables (default, '_r')
-      -drop_suffix          Rename FFs to be have no suffix (see -curr_suffix)
-                            outside generated block (default, false)
+                            Suffix for next state variables (default, no-suffix)
       -ena ENA              SM enable signal base (default, no enable generated,
                             SM number will be appended)
       -local_next           Keep declarations of next state variables local
@@ -266,7 +257,7 @@ For a description of all the options do:
                             active high)
       -name NAME            Used to derive block name etc. (default, 'dstate'
                             followed by SM instance number)
-      -tab TAB              Used to indent output (default, uses tabs)
+      -tab TAB              Used to indent output (default, four spaces)
       -sd SD                Delay for <= assignements (default, no delay)
       -falling_edge         Clock active on falling edge (default, rising)
       -sync_rst             Synchronous reset (default, async)
@@ -316,7 +307,11 @@ The tests use:
   See http://iverilog.icarus.com
 
 - **vppreproc** : verilog preprocessor (sudo apt-get install libverilog-perl)  
-  run ./install_prep.sh if you want to install it without root access.
+  run ./install_prep.sh if you want to install it without root access. It iverilog
+  is being used as simulator, then this dependency is not required (iverilog can be
+  used as pre-processor as well). However if you decide you use your own simulator,
+  one of the two, vppreproc or iverilog, must be installed to be used as preprocessor.
+  The scripts expect one of them ot be available in the PATH
 
 Optional:
 
