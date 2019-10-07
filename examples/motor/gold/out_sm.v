@@ -71,7 +71,6 @@ always @* begin : dstate0_combo
     // SmEnd
 end // dstate0_combo
 
-
 always @(posedge clk or negedge rst_n) begin : dstate0
     if (~rst_n) begin
         // SmBegin ff init begin

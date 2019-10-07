@@ -153,7 +153,6 @@ always @* begin : dstate0_combo
     // SmEnd
 end // dstate0_combo
 
-
 always @(posedge clk or negedge rst_n) begin : dstate0
     if (~rst_n) begin
         // SmBegin ff init begin
@@ -258,7 +257,6 @@ always @* begin : dstate1_combo
     endcase
     // SmEnd
 end // dstate1_combo
-
 
 always @(posedge clk or negedge rst_n) begin : dstate1
     if (~rst_n) begin

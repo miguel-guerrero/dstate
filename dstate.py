@@ -552,8 +552,7 @@ class FsmConverter:
         print(ind + tab + "// SmEnd")
         print(ind + f"end // {self.oname}_combo")
 
-  
-        print("\n")
+        print()
         print(ind + f"always {self.tick} begin : {self.oname}")
   
         print(ind + tab + f"if ({self.reset_cond}) begin")
