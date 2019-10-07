@@ -1,2 +1,2 @@
-TOFSMOPTS=-drop_suffix -local_next -rename_states -curr_suffix _q
+TOFSMOPTS=-rename_states 
 include ../../common/include.mk

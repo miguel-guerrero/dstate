@@ -159,17 +159,10 @@ endtask
 
 always @(posedge clk) begin
    #0;
-`ifdef GLS
-   $display($time, " i=", i_dut.\dstate0.i_r , 
-                   " j=", i_dut.\dstate0.j_r , 
-                   " k=", i_dut.\dstate0.k_r , 
+   $display($time, " i=", i_dut.i , 
+                   " j=", i_dut.j , 
+                   " k=", i_dut.k , 
                    " acc=%x", i_dut.acc);
-`else
-   $display($time, " i=", i_dut.dstate0.i_r, 
-                   " j=", i_dut.dstate0.j_r, 
-                   " k=", i_dut.dstate0.k_r, 
-                   " acc=%x", i_dut.acc);
-`endif
 end
 
 initial begin

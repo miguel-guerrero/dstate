@@ -110,6 +110,7 @@ class FsmConverter:
         self.ff_local_decl_in = ""
         self.ff_rst_in  = ""
         self.ff_update_ffs = ""
+        self.ff_rename_ffs = ""
         self.ff_update_ffs_beh = ""
         self.ff_update_nxt = ""
         self.combo_decl_in = ""
@@ -117,7 +118,6 @@ class FsmConverter:
         self.combo_init_in = ""
         self.reg_track_isff={}
         self.reg_track_init={}
-        self.reg_track_set=set()
         self.rename_state = {}
         self.parser = None
         self.root = None
@@ -163,9 +163,8 @@ class FsmConverter:
   
                     self.reg_track_init[var] = init
                     self.reg_track_isff[var] = isff
-                    self.reg_track_set.add(var)
   
-                    eff_local = local 
+                    eff_local = local or self.args.drop_suffix #drop_suffix implies local
   
                     if isff:
                         var_pair = f"{var}{curr}, {var}{nxt}" 
@@ -186,11 +185,13 @@ class FsmConverter:
                         self.ff_update_ffs += f"{var}{curr} <= {sd}{var}{nxt};\n"
    
                         scope_cur = self.oname+"." if eff_local else ""
-                        scope_nxt = ""
+                        scope_nxt = self.oname+"." if eff_local or self.args.local_next else ""
                         self.ff_update_ffs_beh += f"{scope_cur}{var}{curr} <= {sd}{scope_nxt}{var}{nxt};\n"
    
                         self.ff_update_nxt += f"{var}{nxt} = {var}{curr};\n"
    
+                        if self.args.drop_suffix and not local:
+                            self.ff_rename_ffs += f"wire {width} {var} = {scope_cur}{var}{curr};\n"
                     else:
                         if local:
                             self.combo_local_decl_in += f"reg {width} {var}{curr};\n";
@@ -284,12 +285,11 @@ class FsmConverter:
                 indpr(ind, self.combo_decl_in)
                 print(ind + "// SmCombo end")
   
-            if self.ff_local_decl_in != "":
-                print(ind + "// SmBegin ff local begin")
-                indpr(ind, self.ff_local_decl_in)
-                print(ind + "// SmBegin ff local end")
-
             print(ind + f"always {self.tick} begin : {self.oname}")
+            if self.ff_local_decl_in != "":
+                print(ind + tab + "// SmBegin ff local begin")
+                indpr(ind + tab, self.ff_local_decl_in)
+                print(ind + tab + "// SmBegin ff local end")
   
             if self.combo_local_decl_in != "":
                 print (ind + tab + "// SmCombo local begin")
@@ -297,8 +297,6 @@ class FsmConverter:
                 print (ind + tab + "// SmCombo local end")
 
             beh_in = re.sub('`?tick', '`tick', beh_in)
-            #import pdb; pdb.set_trace()
-            beh_in = self.xlate_to_combo(beh_in)
   
             print (ind +   tab + f"if ({self.not_reset_cond}) begin")
             print (ind + 2*tab +  f"begin : {self.oname}_loop")
@@ -317,6 +315,10 @@ class FsmConverter:
                 print (ind + tab + "// SmBegin ff init end")
   
             print (ind + "end")
+            if self.args.drop_suffix:
+                print(ind + "// drop_suffix begin")
+                indpr(ind, self.ff_rename_ffs)
+                print(ind + "// drop_suffix end")
             self.print_task_update_ffs(ind)
             print (ind + "`undef tick")
             print (f"// end dstate{self.sm_num}\n")
@@ -583,50 +585,30 @@ class FsmConverter:
         print (f"// begin dstate{self.sm_num}")
         indpr(ind, par_out)
  
-        if self.combo_decl_in != "":
-            print(ind + "// SmCombo decl begin")
-            indpr(ind, self.combo_decl_in)
-            print(ind + "// SmCombo decl end")
-
-        # FSM STYLE output
+        # SINGLE BLOCK STYLE
         if self.ff_decl_in != "":
             print(ind + "// SmBegin ff decl begin")
             indpr(ind, self.ff_decl_in)
             print(ind + "// SmBegin ff decl end")
   
+        if self.combo_decl_in != "":
+            print(ind + "// SmCombo decl begin")
+            indpr(ind, self.combo_decl_in)
+            print(ind + "// SmCombo decl end")
+  
+        print(ind + f"always {self.tick} begin : {self.oname}")
+  
         if self.ff_local_decl_in != "":
-            print(ind + "// SmBegin ff local begin")
-            indpr(ind, self.ff_local_decl_in)
-            print(ind + "// SmBegin ff local end")
-            print(ind + f"reg [{state_bits_m1}:0] {self.ostate}{curr}, {self.ostate}{nxt};")
-
-        print(ind + f"always @* begin : {self.oname}_combo")
-
+            print(ind + tab + "// SmBegin ff local begin")
+            indpr(ind + tab, self.ff_local_decl_in)
+            print(ind + tab + "// SmBegin ff local end")
+  
         if self.combo_local_decl_in != "":
             print(ind + tab + "// SmCombo local begin")
             indpr(ind + tab, self.combo_local_decl_in)
             print(ind + tab + "// SmCombo local end")
-
-        print(ind + tab +f"// set defaults for next state vars begin")
-        indpr(ind + tab , self.ff_update_nxt)
-        print(ind + tab +f"// set defaults for next state vars end")
-        print(ind + tab +f"{self.ostate}{nxt} = {self.ostate}{curr};")
-        print(ind + tab +  "// SmForever")
-        print(ind + tab + f"case ({self.ostate}{curr})")
-        for code in sorted(tks.keys()):
-            visited = set()
-            node = tks[code]
-            st_name = self.state_name(node)
-            print(ind+ 2*tab + f"{st_name}: begin")
-            print(self.dump_subtree_sm(node.succ(), ind + 4*tab, mode, node, visited), end='')
-            print(ind+ 2*tab + f"end")
-        print(ind + tab + "endcase")
-        print(ind + tab + "// SmEnd")
-        print(ind + f"end // {self.oname}_combo")
-
   
-        print("\n")
-        print(ind + f"always {self.tick} begin : {self.oname}")
+        print(ind + tab + f"reg [{state_bits_m1}:0] {self.ostate}{curr}, {self.ostate}{nxt};")
   
         print(ind + tab + f"if ({self.reset_cond}) begin")
         if self.ff_rst_in != "":
@@ -637,13 +619,34 @@ class FsmConverter:
         print(ind + 2*tab + f"{self.ostate}{curr} <= {sd}{init_state};")
         print(ind + tab +  "end")
         print(ind + tab + f"else {ena_guard}begin")
-
+        print(ind + 2*tab +f"// set defaults for next state vars begin")
+        indpr(ind + 2*tab , self.ff_update_nxt)
+        print(ind + 2*tab +f"// set defaults for next state vars end")
+        print(ind + 2*tab +f"{self.ostate}{nxt} = {self.ostate}{curr};")
+        print(ind + 2*tab +  "// SmForever")
+        print(ind + 2*tab + f"case ({self.ostate}{curr})")
+  
+        for code in sorted(tks.keys()):
+            visited = set()
+            node = tks[code]
+            st_name = self.state_name(node)
+            print(ind+ 3*tab + f"{st_name}: begin")
+            print(self.dump_subtree_sm(node.succ(), ind + 4*tab, mode, node, visited), end='')
+            print(ind+ 3*tab + f"end")
+  
+        print(ind + 2*tab + "endcase")
+        print(ind + 2*tab + "// SmEnd")
         print(ind + 2*tab +f"// Update ffs with next state vars begin")
         indpr(ind + 2*tab , self.ff_update_ffs)
         print(ind + 2*tab +f"// Update ffs with next state vars end")
         print(ind + 2*tab +f"{self.ostate}{curr} <= {sd}{self.ostate}{nxt};")
         print(ind + tab+ "end")
         print(ind + "end")
+        if self.args.drop_suffix:
+            print(ind + "// drop_suffix begin")
+            indpr(ind, self.ff_rename_ffs)
+            print(ind + "// drop_suffix end")
+ 
         print (f"// end dstate{self.sm_num}\n")
 
     def print_task_update_ffs(self, ind):
@@ -656,13 +659,6 @@ class FsmConverter:
 
     def assign(self, lhs, rhs):
         return f"{lhs} <= {self.args.sd}{rhs}"
-
-    
-    def xlate_to_combo(self, code):
-        for var in self.reg_track_set:
-            code = re.sub(r'\b'+var+r'\b', var+self.args.next_suffix, code)
-        return code
-
 
     def dump_subtree_sm(self, node, ind, mode, state_node, visited_in):
 
@@ -687,12 +683,10 @@ class FsmConverter:
             nx  = node.nxt
             ch1 = node.child[1]
             ch2 = node.child[2]
-
-            node_code = self.xlate_to_combo(node.code)
   
             if node.typ == "eif":
                 flagged_visited(node)
-                cond = node_code
+                cond = node.code
                 if is_one(cond):
                     out += self.dump_subtree_sm(ch1, ind, mode, state_node, visited)
                 elif is_zero(cond):
@@ -711,7 +705,7 @@ class FsmConverter:
                 node = None
             elif node.typ == "if":
                 flagged_visited(node)
-                cond = node_code
+                cond = node.code
                 if is_one(cond):
                     out += self.dump_subtree_sm(ch1, ind, mode, state_node, visited)
                 elif is_zero(cond):
@@ -727,36 +721,36 @@ class FsmConverter:
                 node = nx
             elif node.typ == "fo":
                 flagged_visited(node)
-                cond = node_code
+                cond = node.code
                 out += ind + f"for ({cond}) begin" + "\n"
                 out += self.dump_subtree_sm(ch1, ind + tab, mode, state_node, visited)
                 out += ind + "end\n"
                 node = nx
             elif node.typ == "wh":
                 flagged_visited(node)
-                cond = node_code
+                cond = node.code
                 out += ind + f"while ({cond}) begin" + "\n"
                 out += self.dump_subtree_sm(ch1, ind + tab, mode, state_node, visited)
                 out += ind + "end\n"
                 node = nx
             elif node.typ == "sn":
                 flagged_visited(node)
-                out_code = node_code
+                out_code = node.code
                 out += ind + f"{out_code};\n"
                 node=node.succ()
             elif node.typ == "cm":
-                out += ind + f"{node_code}"
+                out += ind + f"{node.code}"
                 node=node.succ()
             elif node.typ == "cs":
                 flagged_visited(node)
-                cond = node_code
+                cond = node.code
                 out += ind + f"case ({cond})" + "\n"
                 out += self.dump_subtree_sm(ch1, ind + tab, mode, state_node, visited)
                 out += ind + "endcase\n"
                 node = nx
             elif node.typ == "csb":
                 flagged_visited(node)
-                expr = node_code
+                expr = node.code
                 out += ind + f"{expr} begin" + "\n"
                 out += self.dump_subtree_sm(ch1, ind + tab, mode, state_node, visited)
                 out += ind + "end\n"
@@ -769,7 +763,7 @@ class FsmConverter:
                     out += ind + f"{self.ostate}{nxt} = {state_name};\n"
                 node=None
             else:
-                out += ind + f"// Ignoring node={node} typ={node.typ} code='{node_code}'"+"\n"
+                out += ind + f"// Ignoring node={node} typ={node.typ} code='{node.code}'"+"\n"
                 node=node.succ()
         return out
 
@@ -849,16 +843,24 @@ def mainCmdParser():
     cmdParser.add_argument("-behav", default=False, action='store_true',
         help="Output is behavioral (default, synthesizable RTL)")
 
-    cmdParser.add_argument("-next_suffix", type=str, default="_nxt",
+    cmdParser.add_argument("-next_suffix", type=str, default="",
         help="Suffix for next state variables (default, no suffix)")
 
-    cmdParser.add_argument("-curr_suffix", type=str, default="",
-        help="Suffix for next state variables (default, no-suffix for flops)")
+    cmdParser.add_argument("-curr_suffix", type=str, default="_r",
+        help="Suffix for next state variables (default, '_r')")
+
+    cmdParser.add_argument("-drop_suffix", default=False, action='store_true',
+        help="Rename FFs to be have no suffix "
+             "(see -curr_suffix) outside generated block (default, false)")
 
     cmdParser.add_argument("-ena", type=str, default="",
         help="If provided generates a enable signal to advance the SM. "
              "this parameter provides the base name of the user provided signal "
              "(default, no enable generated, SM number will be appended)")
+
+    cmdParser.add_argument("-local_next", default=False, action='store_true',
+        help="Keep declarations of next state variables local "
+             "(default, false)")
 
     cmdParser.add_argument("-rename_states", default=False, action='store_true',
         help="Rename/simplify merged state constant names (default, false)")
@@ -882,8 +884,8 @@ def mainCmdParser():
         help="Used to derive block name etc. "
              "(default, 'dstate' followed by SM instance number)")
 
-    cmdParser.add_argument("-tab", type=str, default="    ",
-        help="String used to indent output (default, uses four spaces)")
+    cmdParser.add_argument("-tab", type=str, default="\t",
+        help="Used to indent output (default, uses tabs)")
 
     cmdParser.add_argument("-sd", type=str, default=None,
         help="Simulation Delay for <= assignements (default, no delay)")
@@ -906,7 +908,6 @@ def mainCmdParser():
         args.rst = "rst" if args.high_act_rst else "rst_n"
     if args.next_suffix == args.curr_suffix:
         error(f'-next_suffix option cannot match -curr_suffix one: {args.curr_suffix}')
-    args.local_next = True
     return args
 
 if __name__=="__main__":
