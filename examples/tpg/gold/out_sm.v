@@ -24,24 +24,16 @@ localparam SM0_S0 = 0;
 localparam SM0_S1 = 1;
 localparam SM0_S2 = 2;
 // SmBegin ff decl begin
-reg  hs_q;
-reg  vs_q;
-reg  vld_q;
-reg  y_active_q;
-reg [PW-1:0] cnt_q;
-reg [H_BITS-1:0] x_q;
-reg [V_BITS-1:0] y_q;
+reg  hs_q, hs_nxt;
+reg  vs_q, vs_nxt;
+reg  vld_q, vld_nxt;
+reg  y_active_q, y_active_nxt;
+reg [PW-1:0] cnt_q, cnt_nxt;
+reg [H_BITS-1:0] x_q, x_nxt;
+reg [V_BITS-1:0] y_q, y_nxt;
 // SmBegin ff decl end
-// SmBegin ff local begin
-reg  hs_nxt;
-reg  vs_nxt;
-reg  vld_nxt;
-reg  y_active_nxt;
-reg [PW-1:0] cnt_nxt;
-reg [H_BITS-1:0] x_nxt;
-reg [V_BITS-1:0] y_nxt;
-// SmBegin ff local end
 reg [1:0] state0_q, state0_nxt;
+
 always @* begin : dstate0_combo
     // set defaults for next state vars begin
     hs_nxt = hs_q;

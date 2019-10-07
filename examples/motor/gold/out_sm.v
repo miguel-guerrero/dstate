@@ -10,14 +10,11 @@ localparam SM0_2 = 2;
 localparam SM0_3 = 3;
 localparam SM0_4 = 4;
 // SmBegin ff decl begin
-reg  motor_up;
-reg  motor_dn;
+reg  motor_up, motor_up_nxt;
+reg  motor_dn, motor_dn_nxt;
 // SmBegin ff decl end
-// SmBegin ff local begin
-reg  motor_up_nxt;
-reg  motor_dn_nxt;
-// SmBegin ff local end
 reg [2:0] state0, state0_nxt;
+
 always @* begin : dstate0_combo
     // set defaults for next state vars begin
     motor_up_nxt = motor_up;

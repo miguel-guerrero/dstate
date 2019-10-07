@@ -25,40 +25,24 @@ localparam SM0_5 = 5;
 localparam SM0_6 = 6;
 localparam SM0_7 = 7;
 // SmBegin ff decl begin
-reg [DIM_BITS-1:0] i;
-reg [DIM_BITS-1:0] j;
-reg [DIM_BITS-1:0] k;
-reg [MEM_AW-1:0] a_i0;
-reg [MEM_AW-1:0] a_ik;
-reg [MEM_AW-1:0] b_0j;
-reg [MEM_AW-1:0] b_kj;
-reg [MEM_AW-1:0] c_i0;
-reg [MEM_AW-1:0] c_ij;
-reg  ret;
-reg  mem_write;
-reg  mem_req;
-reg  row_end;
-reg [MEM_AW-1:0] mem_addr;
-reg [MEM_DW-1:0] mem_wdata;
+reg [DIM_BITS-1:0] i, i_nxt;
+reg [DIM_BITS-1:0] j, j_nxt;
+reg [DIM_BITS-1:0] k, k_nxt;
+reg [MEM_AW-1:0] a_i0, a_i0_nxt;
+reg [MEM_AW-1:0] a_ik, a_ik_nxt;
+reg [MEM_AW-1:0] b_0j, b_0j_nxt;
+reg [MEM_AW-1:0] b_kj, b_kj_nxt;
+reg [MEM_AW-1:0] c_i0, c_i0_nxt;
+reg [MEM_AW-1:0] c_ij, c_ij_nxt;
+reg  ret, ret_nxt;
+reg  mem_write, mem_write_nxt;
+reg  mem_req, mem_req_nxt;
+reg  row_end, row_end_nxt;
+reg [MEM_AW-1:0] mem_addr, mem_addr_nxt;
+reg [MEM_DW-1:0] mem_wdata, mem_wdata_nxt;
 // SmBegin ff decl end
-// SmBegin ff local begin
-reg [DIM_BITS-1:0] i_nxt;
-reg [DIM_BITS-1:0] j_nxt;
-reg [DIM_BITS-1:0] k_nxt;
-reg [MEM_AW-1:0] a_i0_nxt;
-reg [MEM_AW-1:0] a_ik_nxt;
-reg [MEM_AW-1:0] b_0j_nxt;
-reg [MEM_AW-1:0] b_kj_nxt;
-reg [MEM_AW-1:0] c_i0_nxt;
-reg [MEM_AW-1:0] c_ij_nxt;
-reg  ret_nxt;
-reg  mem_write_nxt;
-reg  mem_req_nxt;
-reg  row_end_nxt;
-reg [MEM_AW-1:0] mem_addr_nxt;
-reg [MEM_DW-1:0] mem_wdata_nxt;
-// SmBegin ff local end
 reg [2:0] state0, state0_nxt;
+
 always @* begin : dstate0_combo
     // set defaults for next state vars begin
     i_nxt = i;
@@ -221,18 +205,13 @@ localparam SM1_1 = 1;
 localparam SM1_2 = 2;
 localparam SM1_3 = 3;
 // SmBegin ff decl begin
-reg [PREC-1:0] a;
-reg [PREC-1:0] b;
-reg [MEM_DW-1:0] acc;
-reg  acc_rdy;
+reg [PREC-1:0] a, a_nxt;
+reg [PREC-1:0] b, b_nxt;
+reg [MEM_DW-1:0] acc, acc_nxt;
+reg  acc_rdy, acc_rdy_nxt;
 // SmBegin ff decl end
-// SmBegin ff local begin
-reg [PREC-1:0] a_nxt;
-reg [PREC-1:0] b_nxt;
-reg [MEM_DW-1:0] acc_nxt;
-reg  acc_rdy_nxt;
-// SmBegin ff local end
 reg [1:0] state1, state1_nxt;
+
 always @* begin : dstate1_combo
     // set defaults for next state vars begin
     a_nxt = a;

@@ -71,22 +71,13 @@ def parseInputFile(fileIn):
                     combo_in += line
             elif state == 2: #BEHAV_LOOP
                 if 'SmEnd' == lineStr:
-                    state=3
+                    state = 3
                 else:
-                    m=re.match('(\s*)SmFlopped:\s*(.*)', line)
-                    if m:
-                        registered_in += m.group(1) + m.group(2) + "\n"
-                    else:
-                        m=re.match('(\s*)SmCombo:\s*(.*)', line)
-                        if m:
-                            combo_in += m.group(1) + m.group(2) + "\n"
-                        else:
-                            inp += line
+                    inp += line
 
             if state == 3:
                 conv = FsmConverter(args)
-                ind = conv.extract_initial(registered_in, isff=True)
-                conv.extract_initial(combo_in, isff=False)
+                ind = conv.extract_initial(registered_in)
                 conv.process_block(inp, "", line_base, fileIn)
                 registered_in = ""
                 combo_in = ""
@@ -107,22 +98,17 @@ class FsmConverter:
         FsmConverter.sm_num += 1
         self.oname = f"{self.args.name}{self.sm_num}"
         self.ff_decl_in = ""
-        self.ff_local_decl_in = ""
         self.ff_rst_in  = ""
         self.ff_update_ffs = ""
-        self.ff_update_ffs_beh = ""
         self.ff_update_nxt = ""
-        self.combo_decl_in = ""
-        self.combo_local_decl_in = ""
         self.combo_init_in = ""
-        self.reg_track_isff={}
         self.reg_track_init={}
         self.reg_track_set=set()
         self.rename_state = {}
         self.parser = None
         self.root = None
 
-    def extract_initial(self, txt, isff):
+    def extract_initial(self, txt):
 
         def get_width_var(width, var):
             m = re.search('(\[.*\])\s*(.*)', var)
@@ -144,7 +130,7 @@ class FsmConverter:
             if line != "":
                 init_assings = re.split(',', line)
                 width = ""
-                local = decl = False
+                decl = False
                 for init_assign in init_assings:
                     try:
                         var, init = re.split('\s*\<?\=\s*', init_assign)
@@ -155,51 +141,23 @@ class FsmConverter:
                         decl = True
                         var = re.sub('reg\s*', '', var)
   
-                    if re.search('local', var):
-                        local = decl = True
-                        var = re.sub('local\s*', '', var)
-  
                     width, var = get_width_var(width, var)
   
                     self.reg_track_init[var] = init
-                    self.reg_track_isff[var] = isff
                     self.reg_track_set.add(var)
   
-                    eff_local = local 
-  
-                    if isff:
-                        var_pair = f"{var}{curr}, {var}{nxt}" 
-                        if eff_local:
-                            self.ff_local_decl_in += f"reg {width} {var_pair};\n";
-                        elif decl:
-                            if self.args.local_next:
-                                self.ff_decl_in       += f"reg {width} {var}{curr};\n"
-                                self.ff_local_decl_in += f"reg {width} {var}{nxt};\n"
-                            else:
-                                self.ff_decl_in       += f"reg {width} {var_pair};\n"
+                    var_pair = f"{var}{curr}, {var}{nxt}" 
+                    if decl:
+                        self.ff_decl_in       += f"reg {width} {var}{curr}, {var}{nxt};\n"
+
+                    if init != "":
+                        self.ff_rst_in += f"{var}{curr} <= {sd}{init};\n"
+                        if self.args.behav:
+                            self.ff_rst_in += f"{var}{nxt} <= {sd}{init};\n"
+
+                    self.ff_update_ffs     += f"{var}{curr} <= {sd}{var}{nxt};\n"
+                    self.ff_update_nxt     += f"{var}{nxt} = {var}{curr};\n"
    
-                        if init != "":
-                            self.ff_rst_in += f"{var}{curr} <= {sd}{init};\n"
-                            if self.args.behav:
-                                self.ff_rst_in += f"{var}{nxt} <= {sd}{init};\n"
-   
-                        self.ff_update_ffs += f"{var}{curr} <= {sd}{var}{nxt};\n"
-   
-                        scope_cur = self.oname+"." if eff_local else ""
-                        scope_nxt = ""
-                        self.ff_update_ffs_beh += f"{scope_cur}{var}{curr} <= {sd}{scope_nxt}{var}{nxt};\n"
-   
-                        self.ff_update_nxt += f"{var}{nxt} = {var}{curr};\n"
-   
-                    else:
-                        if local:
-                            self.combo_local_decl_in += f"reg {width} {var}{curr};\n";
-                        else:
-                            if decl:
-                              self.combo_decl_in += f"reg {width} {var}{curr};\n"
-                        if init != "":
-                            self.combo_init_in += f"{var}{curr} = {init};\n"
- 
         return ind
 
 
@@ -279,23 +237,8 @@ class FsmConverter:
                 indpr(ind, self.ff_decl_in)
                 print(ind + "// SmBegin ff end")
   
-            if self.combo_decl_in != "":
-                print(ind + "// SmCombo begin")
-                indpr(ind, self.combo_decl_in)
-                print(ind + "// SmCombo end")
-  
-            if self.ff_local_decl_in != "":
-                print(ind + "// SmBegin ff local begin")
-                indpr(ind, self.ff_local_decl_in)
-                print(ind + "// SmBegin ff local end")
-
             print(ind + f"always {self.tick} begin : {self.oname}")
   
-            if self.combo_local_decl_in != "":
-                print (ind + tab + "// SmCombo local begin")
-                indpr(ind + tab, self.combo_local_decl_in)
-                print (ind + tab + "// SmCombo local end")
-
             beh_in = re.sub('`?tick', '`tick', beh_in)
             #import pdb; pdb.set_trace()
             beh_in = self.xlate_to_combo(beh_in)
@@ -583,29 +526,14 @@ class FsmConverter:
         print (f"// begin dstate{self.sm_num}")
         indpr(ind, par_out)
  
-        if self.combo_decl_in != "":
-            print(ind + "// SmCombo decl begin")
-            indpr(ind, self.combo_decl_in)
-            print(ind + "// SmCombo decl end")
-
         # FSM STYLE output
         if self.ff_decl_in != "":
             print(ind + "// SmBegin ff decl begin")
             indpr(ind, self.ff_decl_in)
             print(ind + "// SmBegin ff decl end")
   
-        if self.ff_local_decl_in != "":
-            print(ind + "// SmBegin ff local begin")
-            indpr(ind, self.ff_local_decl_in)
-            print(ind + "// SmBegin ff local end")
-            print(ind + f"reg [{state_bits_m1}:0] {self.ostate}{curr}, {self.ostate}{nxt};")
-
+        print(ind + f"reg [{state_bits_m1}:0] {self.ostate}{curr}, {self.ostate}{nxt};\n")
         print(ind + f"always @* begin : {self.oname}_combo")
-
-        if self.combo_local_decl_in != "":
-            print(ind + tab + "// SmCombo local begin")
-            indpr(ind + tab, self.combo_local_decl_in)
-            print(ind + tab + "// SmCombo local end")
 
         print(ind + tab +f"// set defaults for next state vars begin")
         indpr(ind + tab , self.ff_update_nxt)
@@ -650,7 +578,7 @@ class FsmConverter:
         tab = self.args.tab
         print(ind +f"task update_ffs{self.sm_num};")
         print(ind + tab +  "begin")
-        indpr(ind + 2*tab , self.ff_update_ffs_beh)
+        indpr(ind + 2*tab , self.ff_update_ffs)
         print(ind + tab +  "end")
         print(ind + "endtask")
 
@@ -906,7 +834,6 @@ def mainCmdParser():
         args.rst = "rst" if args.high_act_rst else "rst_n"
     if args.next_suffix == args.curr_suffix:
         error(f'-next_suffix option cannot match -curr_suffix one: {args.curr_suffix}')
-    args.local_next = True
     return args
 
 if __name__=="__main__":
