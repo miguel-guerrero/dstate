@@ -1,5 +1,5 @@
-`define loop(var, val='b0)  var=val; do begin
-`define next(var, limit, incr=1'b1) var=var+incr; end while(var != limit)
+`define loop(var, val)  var=val; do begin
+`define next(var, limit, incr) var=var+incr; end while(var != limit)
 
 module tpg 
 #(parameter PW=8, H_BITS=12, V_BITS=12)
@@ -31,14 +31,14 @@ SmBegin
 SmForever
     cnt=0;
     while(1) begin
-        `loop(z)
-            `loop(y)
-                `loop(x)
+        `loop(z, 0)
+            `loop(y, 0)
+                `loop(x, 0)
                     cnt = cnt+1;
                     tick;
-                `next(x, 15);
-            `next(y, 10);
-        `next(z, 5);
+                `next(x, 15, 1);
+            `next(y, 10, 1);
+        `next(z, 5, 1);
     end
 SmEnd
 
