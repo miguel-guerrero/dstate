@@ -36,7 +36,7 @@ SmForever
             `loop(y=0)
                 `loop(x=0)
                     cnt = cnt+1;
-                    `tick;
+                    tick;
                 `next(x != 15, x=x+1);
             `next(y != 10, y=y+1);
         `next(z!=5, z=z+1);

@@ -51,7 +51,7 @@ SmForever
                 cnt = cnt + 1;
 
             x = x + 1'b1;
-            `tick;
+            tick;
         end while (x != tH_END);
 
         // generate vertical sync as a function of line#
@@ -66,7 +66,7 @@ SmForever
             y_active = 1'b0;
 
         y = y + 1'b1;
-        `tick;
+        tick;
     end while (y != tV_END);
 SmEnd
 

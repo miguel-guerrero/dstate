@@ -29,9 +29,9 @@ SmForever
     for (y=0; y != 5; y=y+1) begin
         for (x = 0; x != 10; x=x+1'b1) begin
             cnt = cnt+1;
-            `tick;
+            tick;
         end 
-        `tick;
+        tick;
     end 
 SmEnd
 

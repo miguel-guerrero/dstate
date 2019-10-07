@@ -39,7 +39,7 @@ SmForever
 
             if (vld)
                 cnt = cnt + 1;
-            `tick;
+            tick;
         end 
 
         if (y == tVS_START)
@@ -52,7 +52,7 @@ SmForever
         else if (y == tVACT_END) 
             y_active = 1'b0;
 
-        `tick;
+        tick;
     end 
 SmEnd
 

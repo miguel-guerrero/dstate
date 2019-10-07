@@ -1,4 +1,4 @@
-`define wait1(cond) `tick; while(~(cond)) `tick 
+`define wait1(cond) tick; while(~(cond)) tick 
 
 module motor(
     input clk, activate, up_limit, dn_limit, rst_n,

@@ -1,5 +1,5 @@
-`define wait1(cond) `tick; while(~(cond)) `tick 
-`define wait0(cond)        while(~(cond)) `tick 
+`define wait1(cond) tick; while(~(cond)) tick 
+`define wait0(cond)       while(~(cond)) tick 
 `define incr(x, val)  x = x + val
 
 module matmul 
@@ -35,18 +35,18 @@ SmForever
 
     `wait0(go);
 
-    `tick;
+    tick;
     while (i_ != aROWS) begin
 
         j_ = 0;
         while (j_ != aCOLS) begin
 
             MEM_write(aBASE+aSTRIDE*i_+j_+1, ~(i_+j_+1)); 
-            `tick;
+            tick;
             MEM_done;
             `incr(j_, 1);
         end
-        //`tick;
+        //tick;
         `incr(i_, 1);
     end
     ret_ = 1;

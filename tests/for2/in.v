@@ -35,7 +35,7 @@ SmForever
                 x=0;
                 do  begin
                     cnt = cnt+1;
-                    `tick;
+                    tick;
                     x=x+1;
                 end while (x != 15);
                 y=y+1;

@@ -44,7 +44,7 @@ SmForever
                 cnt = cnt + 1;
 
             x = x + 1'b1;
-            `tick;
+            tick;
         end while (x != tH_END);
 
         if (y == tVS_START)
@@ -57,7 +57,7 @@ SmForever
         else if (y == tVACT_END) 
             y_active = 1'b0;
 
-        `tick;
+        tick;
         y=y+1;
     end while (y != tV_END);
 SmEnd

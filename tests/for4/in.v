@@ -35,7 +35,7 @@ SmForever
             `loop(y)
                 `loop(x)
                     cnt = cnt+1;
-                    `tick;
+                    tick;
                 `next(x, 15);
             `next(y, 10);
         `next(z, 5);

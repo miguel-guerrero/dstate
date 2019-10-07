@@ -1,5 +1,5 @@
 // Useful macro definitions
-`define wait1(cond) `tick; while(~(cond)) `tick 
+`define wait1(cond) tick; while(~(cond)) tick 
 `define incr(x, amnt)  x = x + amnt
 `define loop(var)  var = 0; do begin
 `define next(var, limit) var = var + 1'b1; end while(var != limit)
@@ -53,20 +53,20 @@ SmForever
             b_kj = b_0j;
             `loop(k)
                 /// dot product loop
-                `tick; `MEM_read(a_ik); `incr(a_ik, 1'b1);
-                `tick; `MEM_read(b_kj); `incr(b_kj, bSTRIDE); 
+                tick; `MEM_read(a_ik); `incr(a_ik, 1'b1);
+                tick; `MEM_read(b_kj); `incr(b_kj, bSTRIDE); 
             `next(k, aCOLS);
-            `tick;
+            tick;
             `MEM_done;
             row_end=1;
             `wait1(acc_rdy);
             `MEM_write(c_ij, acc); `incr(b_0j, 1'b1); `incr(c_ij, 1'b1); row_end=0;
-            `tick;
+            tick;
         `next(j, bCOLS);
         `MEM_done;
         `incr(c_i0, cSTRIDE);
         `incr(a_i0, aSTRIDE);
-        `tick;
+        tick;
     `next(i, aROWS);
     ret = 1;
 SmEnd
@@ -86,7 +86,7 @@ SmForever
         b = mem_rdata;
         `incr(acc, a[PREC-1:0]*b[PREC-1:0]);
     end while (~row_end);
-    `tick;
+    tick;
     acc_rdy=1;
 SmEnd
 
